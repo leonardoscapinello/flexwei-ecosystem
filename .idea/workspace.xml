@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="1a6e2a38-6b3c-4e32-861f-a4f71cafa93a" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" doNotAsk="true" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution>
+      <executable />
+    </execution>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration">
+    <include_path>
+      <path value="$PROJECT_DIR$/src/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/src/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/src/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/src/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/src/vendor/pagarme/pagarme-php" />
+      <path value="$PROJECT_DIR$/src/vendor/composer" />
+      <path value="$PROJECT_DIR$/src/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/src/vendor/guzzlehttp/promises" />
+    </include_path>
+  </component>
+  <component name="ProjectId" id="1YGwzz8S5OmrpR90UH46wXJzO8r" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/class" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\wamp64\www\flexweisistema\src\class" />
+      <recent name="C:\wamp64\www\flexweisistema\public\javascript" />
+      <recent name="C:\wamp64\www\flexweisistema\public\stylesheet" />
+      <recent name="C:\wamp64\www\flexweisistema\public\fonts\lineawesome" />
+      <recent name="C:\wamp64\www\flexweisistema\src" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\wamp64\www\flexweisistema\src\class" />
+      <recent name="C:\wamp64\www\flexweisistema\src\modules" />
+      <recent name="C:\wamp64\www\flexweisistema\src\modules\content" />
+      <recent name="C:\wamp64\www\flexweisistema\src\session" />
+    </key>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1a6e2a38-6b3c-4e32-861f-a4f71cafa93a" name="Default Changelist" comment="" />
+      <created>1582582504377</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1582582504377</updated>
+      <workItem from="1582582505735" duration="143000" />
+      <workItem from="1582586709995" duration="110000" />
+      <workItem from="1582587263959" duration="6922000" />
+      <workItem from="1582632791254" duration="8019000" />
+      <workItem from="1582765520365" duration="732000" />
+      <workItem from="1582804158178" duration="11314000" />
+      <workItem from="1583010083040" duration="15847000" />
+      <workItem from="1583097780388" duration="41547000" />
+      <workItem from="1583254426274" duration="40625000" />
+      <workItem from="1583434661027" duration="8066000" />
+      <workItem from="1583524878233" duration="14258000" />
+      <workItem from="1583582545787" duration="4857000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="765" y="242" key="#com.intellij.ide.util.MemberChooser" timestamp="1583586350605">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="765" y="242" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583586350605" />
+    <state x="0" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1583275280637">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="0" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583275280637" />
+    <state x="690" y="273" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1582590144111">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="690" y="273" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1582590144111" />
+    <state x="740" y="281" key="FileChooserDialogImpl" timestamp="1582850100050">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="740" y="281" key="FileChooserDialogImpl/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1582850100050" />
+    <state x="794" y="449" key="NewPhpFileDialog" timestamp="1583582928511">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="794" y="449" key="NewPhpFileDialog/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583582928511" />
+    <state x="656" y="350" key="com.intellij.ide.util.TipDialog" timestamp="1583582613302">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="656" y="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583582613302" />
+    <state x="616" y="243" key="run.anything.popup" timestamp="1583165102196">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="616" y="243" key="run.anything.popup/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583165102196" />
+    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup" timestamp="1583436791087">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583436791087" />
+  </component>
+</project>

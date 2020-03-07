@@ -1,0 +1,22 @@
+{
+  "name": "flexwei/customer-management",
+  "authors": [
+    {
+      "name": "Leonardo Scapinello",
+      "email": "leonardo@flexwei.com",
+      "homepage": "http://www.flexwei.com",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "email": "tecnologia@flexwei.com"
+  },
+  "require": {
+    "php": "^7.0",
+    "monolog/monolog": "1.0.*",
+    "pagarme/pagarme-php": "^4.0"
+  },
+  "config": {
+    "vendor-dir": "src/vendor/"
+  }
+}

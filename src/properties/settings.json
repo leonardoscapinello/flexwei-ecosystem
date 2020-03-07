@@ -1,0 +1,16 @@
+{
+  "website": {
+    "site_name": "Flexwei | Marketing Concierge",
+    "site_url": "http://localhost/flexweisistema/",
+    "development": true
+  },
+  "database": {
+    "server": "localhost",
+    "port": "3306",
+    "user": "root",
+    "password": "",
+    "password_encryption": "",
+    "database": "flexwei_ecosystem",
+    "driver": "mysql"
+  }
+}

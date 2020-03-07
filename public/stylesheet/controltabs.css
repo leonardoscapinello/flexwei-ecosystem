@@ -1,0 +1,121 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400|Inconsolata);
+
+.tab-header {
+    background: #121212;
+    margin-top: -2px;
+    width: 100%;
+
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+    float: left;
+    border: none;
+    outline: 0;
+    letter-spacing: 1px;
+    cursor: pointer;
+    background: #ECF0F1;
+    transition: 0.3s;
+    margin: 0;
+    text-align: center;
+    line-height: 54px;
+    position: relative;
+    color: #bdc3c7;
+    border-right: 1px #DBDBDB solid;
+    font-size: 14px;
+    min-width: 10%;
+}
+
+.tab button:first-child:nth-last-child(1) {
+    width: 25%;
+}
+
+
+/* two items */
+.tab button:first-child:nth-last-child(2),
+.tab button:first-child:nth-last-child(2) ~ button {
+    width: 50%;
+}
+
+/* three items */
+.tab button:first-child:nth-last-child(3),
+.tab button:first-child:nth-last-child(3) ~ button {
+    width: 33.3333%;
+}
+
+/* four items */
+.tab button:first-child:nth-last-child(4),
+.tab button:first-child:nth-last-child(4) ~ button {
+    width: 25%;
+}
+
+/* five items */
+.tab button:first-child:nth-last-child(5),
+.tab button:first-child:nth-last-child(5) ~ button {
+    width: 20%;
+}
+
+/* six items */
+.tab button:first-child:nth-last-child(6),
+.tab button:first-child:nth-last-child(6) ~ button {
+    width: 16.66%;
+}
+
+/* seven items */
+.tab button:first-child:nth-last-child(7),
+.tab button:first-child:nth-last-child(7) ~ button {
+    width: 14.28%;
+}
+
+
+.tab button.active {
+    background: #FFFFFF;
+    color: #ED145B;
+    box-shadow: 2px -4px 4px 0 rgba(0, 0, 0, .1);
+    position: relative;
+    z-index: 33;
+
+}
+
+.tab button:first-child {
+    border-left: 1px #D8D8D8 solid;
+}
+
+/* Change background color of buttons on hover */
+.tab button:before {
+    content: "";
+    position: absolute;
+    width: calc(100% + 2px);
+    background: #ED145B;
+    bottom: 100%;
+    left: -1px;
+    transition: all .4s;
+    height: 0;
+}
+
+.tab button:hover::before {
+    height: 6px;
+    bottom: 100%;
+    transition: all .4s;
+}
+
+
+/* Create an active/current tablink class */
+.tab button.active:before {
+    content: "";
+    position: absolute;
+    width: calc(100% + 2px);
+    height: 6px;
+    background: #ED145B;
+    bottom: 100%;
+    left: -1px;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 10px 0;
+}

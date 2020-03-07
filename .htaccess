@@ -1,0 +1,18 @@
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^login/createsession$   src/session/authenticate.php [L,NC,QSA]
+RewriteRule ^login$                 src/session/account.php?action=login [L,NC,QSA]
+RewriteRule ^logout$                src/session/account.php?action=logout [L,NC,QSA]
+RewriteRule ^login/redirect$        src/session/redirect.php [L,NC,QSA]
+
+RewriteRule ^p/update/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$               src/modules/external/update-invoice.php?ik=$1&id=$2 [L,NC,QSA]
+
+RewriteRule ^e/([a-zA-Z0-9_-]+)$                                src/modules/external/$1.php [L,NC,QSA]
+
+
+RewriteRule ^d/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$               index.php?mdurl=$1&prm1=$2 [L,NC,QSA]
+RewriteRule ^d/([a-zA-Z0-9_-]+)$                                index.php?mdurl=$1 [L,NC,QSA]
+
+
