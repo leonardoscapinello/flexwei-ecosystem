@@ -3,18 +3,10 @@
 class AccountsCards
 {
 
-    private $id_account_card;
-    private $id_account;
-    private $id_card_external;
-    private $card_holder;
-    private $card_last_digits;
-    private $card_company;
-    private $insert_time;
-    private $is_active;
 
     public function __construct($id_account = 0)
     {
-        $this->load($id_account);
+        //$this->load($id_account);
     }
 
     public function load($id_card = 0, $id_account = 0)
@@ -25,7 +17,7 @@ class AccountsCards
         global $numeric;
         if (!$id_account || intval($id_account) === 0) $id_account = $session->getIdAccount();
         if (not_empty($id_account) && $numeric->is_number($id_account)) {
-            $database->query("SELECT * FROM accounts_cards WHERE id_account = ? AND id_card = ?");
+            $database->query("SELECT * FROM accounts_cards WHERE id_account = ? AND id_account_card = ?");
             $database->bind(1, $id_account);
             $database->bind(2, $id_card);
             $result = $database->resultsetObject();
@@ -37,6 +29,124 @@ class AccountsCards
             }
         }
         return false;
+    }
+
+    private function cardExists($number, $expire)
+    {
+        global $database;
+        global $account;
+        global $security;
+        try {
+            $id_account = $account->getIdAccount();
+            $last_digits = substr($number, -4);
+            $database->query("SELECT id_account_card, last_digits, expiration_date FROM accounts_cards WHERE id_account = ?");
+            $database->bind(1, $id_account);
+            $result = $database->resultset();
+            if (count($result) > 0) {
+                for ($i = 0; $i < count($result); $i++) {
+                    $db_last_digits = $result[$i]['last_digits'];
+                    $db_last_digits = $security->decrypt($db_last_digits);
+                    $db_expiration_date = $result[$i]['expiration_date'];
+                    $db_expiration_date = $security->decrypt($db_expiration_date);
+                    if ($last_digits === $db_last_digits) {
+                        if ($expire === $db_expiration_date) {
+                            return $result[$i]['id_account_card'];
+                        }
+                    }
+                }
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return false;
+    }
+
+    public function register($number, $holder, $expire_month, $expire_year, $cvv)
+    {
+        global $database;
+        global $account;
+        global $date;
+        global $security;
+        global $creditCard;
+        $lastid = 0;
+        try {
+
+            $id_account = $account->getIdAccount();
+            $expire = $expire_month . $expire_year;
+
+            if ($this->cardExists($number, $expire)) return $this->cardExists($number, $expire);
+
+            // CHECK IF IS A VALID CREDIT CARD
+            $err = $errmsg = "";
+
+            if (!$creditCard->validate($number, $err, $errmsg)) return false;
+
+
+            $card = (array)$this->create($number, $holder, $expire, $cvv);
+            $security->setIdAccount($id_account);
+
+            if (count($card) > 0) {
+                $id_card = $security->encrypt($card['id']);
+                $fingerprint = $security->encrypt($card['fingerprint']);
+                $holder = $security->encrypt($card['holder_name']);
+                $last_digits = $security->encrypt($card['last_digits']);
+                $brand = $security->encrypt($card['brand']);
+                $country = $security->encrypt($card['country']);
+                $expiration_date = $security->encrypt($card['expiration_date']);
+                $date_created = $date->str2date($card['date_created']);
+                $date_updated = $date->str2date($card['date_updated']);
+                $valid = $card['valid'];
+
+                if ($valid === 1 || $valid === "1") {
+                    $valid = "Y";
+                } else {
+                    $valid = "N";
+                }
+
+
+                $database->query("INSERT INTO accounts_cards (id_account, id_card_external, fingerprint, holder, last_digits, brand, country, expiration_date, date_created, date_updated, is_valid) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+                $database->bind(1, $id_account);
+                $database->bind(2, $id_card);
+                $database->bind(3, $fingerprint);
+                $database->bind(4, $holder);
+                $database->bind(5, $last_digits);
+                $database->bind(6, $brand);
+                $database->bind(7, $country);
+                $database->bind(8, $expiration_date);
+                $database->bind(9, $date_created);
+                $database->bind(10, $date_updated);
+                $database->bind(11, $valid);
+                $database->execute();
+
+                $lastid = $database->lastInsertId();
+
+            }
+
+            return $lastid;
+
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+
+        return false;
+
+    }
+
+    private function create($number, $holder, $expire, $cvv)
+    {
+        global $pagarme;
+        try {
+            $card = $pagarme->cards()->create([
+                'holder_name' => $holder,
+                'number' => $number,
+                'expiration_date' => $expire,
+                'cvv' => $cvv
+            ]);
+            return $card;
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return array();
     }
 
     /**
@@ -134,10 +244,6 @@ class AccountsCards
     {
         $this->card_company = $card_company;
     }
-
-
-
-
 
 
 }

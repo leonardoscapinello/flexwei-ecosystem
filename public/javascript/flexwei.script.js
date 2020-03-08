@@ -126,3 +126,25 @@ function conf(msg) {
 }
 
 
+function onlyNumbers(field) {
+    field.value = field.value.replace(/[^0-9.]/g, '');
+    field.value = field.value.replace(/(\..*)\./g, '$1');
+}
+
+function setUsername(checkbox, id_field) {
+    let field = document.getElementById(id_field);
+    let main = document.getElementById(id_field + "__main");
+    if (checkbox !== null && checkbox !== undefined) {
+        if (field !== null && field !== undefined) {
+            if (checkbox.checked === true) {
+                field.value = atob(field.dataset.fullname);
+                field.readOnly = true;
+                if (main !== undefined && main !== null) main.style.display = "none";
+            } else {
+                field.value = "";
+                field.readOnly = false;
+                if (main !== undefined && main !== null) main.style.display = "block";
+            }
+        }
+    }
+}

@@ -14,7 +14,8 @@
   "require": {
     "php": "^7.0",
     "monolog/monolog": "1.0.*",
-    "pagarme/pagarme-php": "^4.0"
+    "pagarme/pagarme-php": "^4.0",
+    "ext-openssl": "*"
   },
   "config": {
     "vendor-dir": "src/vendor/"

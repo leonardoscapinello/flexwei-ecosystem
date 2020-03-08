@@ -29,6 +29,22 @@ if ($action === "password") {
     }
 }
 
+if ($action === "cc") {
+    $number = get_request("ccnumber");
+    $holder = get_request("ccname");
+    $expire_month = get_request("ccmonth");
+    $expire_year = get_request("ccyear");
+    $cvv = get_request("cccvv");
+    if ($accountsCards->register($number, $holder, $expire_month, $expire_year, $cvv)) {
+        header("location: " . $modules->getModuleUrlById(4) . '?s=cc#v:finance');
+        die;
+    } else {
+        header("location: " . $modules->getModuleUrlById(4) . '?s=ercc#v:finance');
+        die;
+    }
+}
+
+
 ?>
 
 
@@ -311,8 +327,39 @@ if ($action === "password") {
                     <div class="row">
                         <div class="col-xl-8 col-lg-8 col-sm-12">
 
+
+                            <?php if (get_request("s") === "cc") { ?>
+                                <div class="alert alert-success fade show" role="alert">
+                                    <div class="alert-icon"><i class="fal fa-credit-card-blank"></i></div>
+                                    <div class="alert-text">
+                                        Parabéns! Um novo cartão de crédito foi cadastrado com sucesso.
+                                    </div>
+                                    <div class="alert-close">
+                                        <button type="button" class="alert-close close" data-dismiss="alert"
+                                                aria-label="Close">
+                                            <span aria-hidden="true"><i class="la la-close"></i></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php } else if (get_request("s") === "ercc") { ?>
+                                <div class="alert alert-danger fade show" role="alert">
+                                    <div class="alert-icon"><i class="fal fa-exclamation-triangle"></i></div>
+                                    <div class="alert-text">
+                                        Oops! Não foi possível cadastrar seu cartão de crédito, verifique as informações
+                                        fornecidas e tente novamente.
+                                    </div>
+                                    <div class="alert-close">
+                                        <button type="button" class="alert-close close" data-dismiss="alert"
+                                                aria-label="Close">
+                                            <span aria-hidden="true"><i class="la la-close"></i></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php } ?>
+
                             <div class="content-block">
                                 <h5 style="padding: 10px 0;">Meus Cartões de Crédito</h5>
+
 
                                 <div class='cards_inner__card mastercard'>
                                     <div class='logo'></div>
@@ -360,14 +407,31 @@ if ($action === "password") {
                         </div>
                         <div class="col-xl-4 col-lg-4 col-sm-12">
                             <!-- 200x114-->
-                            <form method="POST">
+                            <form method="GET">
+                                <input type="hidden" value="cc" name="action">
                                 <div class="content-block">
                                     <h5 style="padding: 10px 15px;">Cadastrar Novo Cartão</h5>
                                     <div class="row">
                                         <div class="col-xl-12 col-lg-12 col-sm-12">
                                             <div class="input-group">
+
+                                                <label class="todo">
+                                                    <input class="todo__state" type="checkbox"
+                                                           onchange="setUsername(this, 'ccname')"/>
+                                                    <?= SVG_CHECKBOX ?>
+                                                    <div class="todo__text">Esse cartão de crédito é meu.</div>
+                                                </label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="ccname__main">
+                                        <div class="col-xl-12 col-lg-12 col-sm-12">
+                                            <div class="input-group">
                                                 <label for="ccname">Nome no Cartão</label>
-                                                <input type="text" id="ccname" name="ccname" required/>
+                                                <input type="text" id="ccname" name="ccname"
+                                                       data-fullname="<?= $text->base64_encode($account->getFullName()) ?>"
+                                                       required/>
                                             </div>
                                         </div>
                                     </div>
@@ -375,7 +439,10 @@ if ($action === "password") {
                                         <div class="col-xl-12 col-lg-12 col-sm-12">
                                             <div class="input-group">
                                                 <label for="ccnumber">Número do Cartão de Crédito</label>
-                                                <input type="text" id="ccnumber" name="ccnumber" required/>
+                                                <input type="text" id="ccnumber" name="ccnumber"
+                                                       onkeyup="onlyNumbers(this);return false"
+                                                       onblur="onlyNumbers(this);return false"
+                                                       required/>
                                             </div>
                                         </div>
                                     </div>
@@ -401,8 +468,8 @@ if ($action === "password") {
                                         </div>
                                         <div class="col-xl-3 col-lg-3 col-sm-12">
                                             <div class="input-group">
-                                                <label for="">Ano</label>
-                                                <select>
+                                                <label for="ccyear">Ano</label>
+                                                <select id="ccyear" name="ccyear">
                                                     <?php for ($i = (intval(substr(date("Y"), 2, 2))); $i < (intval(substr(date("Y"), 2, 2)) + 16); $i++) { ?>
                                                         <option value="<?= $numeric->zeroFill($i, 2) ?>"><?= $numeric->zeroFill($i, 2) ?></option>
                                                     <?php } ?>
@@ -411,14 +478,18 @@ if ($action === "password") {
                                         </div>
                                         <div class="col-xl-6 col-lg-6 col-sm-12">
                                             <div class="input-group">
-                                                <label for="">CVV</label>
-                                                <input type="text" id="" maxlength="5" required/>
+                                                <label for="cccvv">CVV</label>
+                                                <input type="text" id="cccvv" name="cccvv"
+                                                       onkeyup="onlyNumbers(this);return false"
+                                                       onblur="onlyNumbers(this);return false"
+                                                       maxlength="5" required/>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-xl-12 col-lg-12 col-sm-4" align="center">
                                             <button class="btn">Cadastrar Cartão de Crédito</button>
+                                            <p class="mute"><i class="fa fa-lock"></i>&nbsp;Ambiente seguro.</p>
                                         </div>
                                     </div>
                                 </div>

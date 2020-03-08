@@ -36,9 +36,9 @@ class Security
 
     private function getIdAccount()
     {
-        global $session;
+        global $account;
         global $numeric;
-        $id_account_sess = $session->getIdAccount();
+        $id_account_sess = $account->getIdAccount();
         if (not_empty($this->id_account) && $numeric->is_number($this->id_account)) return $this->id_account;
         if (not_empty($id_account_sess) && $numeric->is_number($id_account_sess)) return $id_account_sess;
     }
@@ -72,6 +72,7 @@ class Security
             $ciphertext_raw = substr($c, $ivlen + $sha2len);
             $original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, $this->getUserKey(), $options = OPENSSL_RAW_DATA, $iv);
             $calcmac = hash_hmac('sha256', $ciphertext_raw, $this->getUserKey(), $as_binary = true);
+
             if (hash_equals($hmac, $calcmac))//PHP 5.6+ timing attack safe comparison
             {
                 return $original_plaintext;

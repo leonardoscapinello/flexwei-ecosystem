@@ -8,6 +8,8 @@ define("DIRNAME", dirname(__FILE__) . "/");
 define("PAGARME_API_KEY", "ak_test_N2oaKtLC2OgCnmSvupDW4RhF5jxf7s");
 define("PAGARME_CRYPT_KEY", "ek_test_6UVSxBYbuOgDCp1CTJxbP2eXVICWku");
 
+define("SVG_CHECKBOX", "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 200 25\" class=\"todo__icon\"> <use xlink:href=\"#todo__line\" class=\"todo__line\"></use> <use xlink:href=\"#todo__box\" class=\"todo__box\"></use> <use xlink:href=\"#todo__check\" class=\"todo__check\"></use> <use xlink:href=\"#todo__circle\" class=\"todo__circle\"></use> </svg>");
+
 require_once(DIRNAME . "../functions/http_response_code.php");
 require_once(DIRNAME . "/../functions/user_agent.php");
 require_once(DIRNAME . "../functions/notempty.php");
@@ -26,6 +28,7 @@ require_once(DIRNAME . "/../class/Database.php");
 require_once(DIRNAME . "/../class/Accounts.php");
 require_once(DIRNAME . "/../class/AccountSession.php");
 require_once(DIRNAME . "/../class/AccountsAddress.php");
+require_once(DIRNAME . "/../class/AccountsCards.php");
 require_once(DIRNAME . "/../class/Numeric.php");
 require_once(DIRNAME . "/../class/Text.php");
 require_once(DIRNAME . "/../class/Date.php");
@@ -49,6 +52,7 @@ $modules = new Modules();
 $session = new AccountSession();
 $account = new Accounts();
 $address = new AccountsAddress();
+$accountsCards = new AccountsCards();
 $token = new Token();
 $security = new Security();
 $contracts = new Contracts();
