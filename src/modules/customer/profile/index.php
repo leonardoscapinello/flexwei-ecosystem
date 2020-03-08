@@ -35,11 +35,12 @@ if ($action === "cc") {
     $expire_month = get_request("ccmonth");
     $expire_year = get_request("ccyear");
     $cvv = get_request("cccvv");
-    if ($accountsCards->register($number, $holder, $expire_month, $expire_year, $cvv)) {
+    $register = $accountsCards->register($number, $holder, $expire_month, $expire_year, $cvv);
+    if ($register[0]) {
         header("location: " . $modules->getModuleUrlById(4) . '?s=cc#v:finance');
         die;
     } else {
-        header("location: " . $modules->getModuleUrlById(4) . '?s=ercc#v:finance');
+        header("location: " . $modules->getModuleUrlById(4) . '?s=ercc&m=' . $text->base64_encode($register[1]) . '#v:finance');
         die;
     }
 }
@@ -103,21 +104,21 @@ if ($action === "cc") {
                                 <div class="input-group">
                                     <label for="">Nome</label>
                                     <input type="text"
-                                           value="<?= $account->getFirstName() ?>"/>
+                                           value="<?= $account->getFirstName() ?>" readonly/>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-sm-4">
                                 <div class="input-group">
                                     <label for="">Sobrenome</label>
                                     <input type="text"
-                                           value="<?= $account->getLastName() ?>"/>
+                                           value="<?= $account->getLastName() ?>" readonly/>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-sm-4">
                                 <div class="input-group">
                                     <label for="">Documento Pessoal</label>
                                     <input type="text"
-                                           value="<?= $account->getMaskedDocument() ?>"/>
+                                           value="<?= $account->getMaskedDocument() ?>" readonly/>
                                 </div>
                             </div>
                         </div>
@@ -126,14 +127,15 @@ if ($action === "cc") {
                                 <div class="input-group">
                                     <label for="">Endereço de E-mail</label>
                                     <input type="text"
-                                           value="<?= $account->getEmail() ?>"/>
+                                           value="<?= $account->getEmail() ?>" readonly/>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-sm-4">
                                 <div class="input-group">
                                     <label for="">Telefone de Contato</label>
                                     <input type="text"
-                                           value="<?= $text->mask($account->getPhoneNumber(), "+## (##) #.####-####") ?>"/>
+                                           value="<?= $text->mask($account->getPhoneNumber(), "+## (##) #.####-####") ?>"
+                                           readonly/>
                                 </div>
                             </div>
                         </div>
@@ -345,8 +347,12 @@ if ($action === "cc") {
                                 <div class="alert alert-danger fade show" role="alert">
                                     <div class="alert-icon"><i class="fal fa-exclamation-triangle"></i></div>
                                     <div class="alert-text">
-                                        Oops! Não foi possível cadastrar seu cartão de crédito, verifique as informações
-                                        fornecidas e tente novamente.
+                                        <?php if (get_request("m") === null) { ?>
+                                            Oops! Não foi possível cadastrar seu cartão de crédito, verifique as informações fornecidas e tente novamente.
+                                        <?php } else { ?>
+                                            Encontramos um problema: <br>
+                                            <?= $text->bold($text->base64_decode(get_request("m"))) ?>
+                                        <?php } ?>
                                     </div>
                                     <div class="alert-close">
                                         <button type="button" class="alert-close close" data-dismiss="alert"
@@ -361,46 +367,29 @@ if ($action === "cc") {
                                 <h5 style="padding: 10px 0;">Meus Cartões de Crédito</h5>
 
 
-                                <div class='cards_inner__card mastercard'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 2131</div>
-                                </div>
-                                <div class='cards_inner__card visa'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 5423</div>
-                                </div>
-                                <div class='cards_inner__card maestro'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 6534</div>
-                                </div>
-                                <div class='cards_inner__card paypal'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 7645</div>
-                                </div>
-                                <div class='cards_inner__card amex'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 6423</div>
-                                </div>
-                                <div class='cards_inner__card diners'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 7664</div>
-                                </div>
-                                <div class='cards_inner__card elo'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 7664</div>
-                                </div>
-                                <div class='cards_inner__card discover'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 7664</div>
-                                </div>
-                                <div class='cards_inner__card hipercard'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 7664</div>
-                                </div>
-                                <div class='cards_inner__card aura'>
-                                    <div class='logo'></div>
-                                    <div class="card_digits">**** 7664</div>
-                                </div>
+                                <?php
+
+                                $cards = $accountsCards->list();
+                                for ($i = 0; $i < count($cards); $i++) {
+
+                                    $id_account_card = $cards[$i]['id_account_card'];
+                                    $brand = $cards[$i]['brand'];
+                                    $last_digits = $cards[$i]['last_digits'];
+                                    $is_valid = $cards[$i]['is_valid'];
+                                    $is_default = $cards[$i]['is_default'];
+
+                                    ?>
+
+                                    <div class="cards_inner__card <?= $is_valid === "Y" ? "" : "disabled" ?> <?= $security->decrypt($brand) ?>"
+                                         onClick="gotoPage('<?= $modules->getEncodedModuleUrlById(5) ?>', '<?= md5($id_account_card) ?>');">
+                                        <div class='logo'></div>
+                                        <div class="card_digits">**** <?= $security->decrypt($last_digits) ?></div>
+                                        <?= $is_default === "Y" ? "<div class=\"default_card\"><i class=\"fa fa-star\"></i></div>" : "" ?>
+                                        <div class="remove_card"><i class="fa fa-eye"></i></div>
+                                    </div>
+
+                                <?php } ?>
+
 
                             </div>
 
@@ -470,7 +459,9 @@ if ($action === "cc") {
                                             <div class="input-group">
                                                 <label for="ccyear">Ano</label>
                                                 <select id="ccyear" name="ccyear">
-                                                    <?php for ($i = (intval(substr(date("Y"), 2, 2))); $i < (intval(substr(date("Y"), 2, 2)) + 16); $i++) { ?>
+                                                    <?php for ($i = (intval(substr(date("Y"), 2, 2)));
+                                                               $i < (intval(substr(date("Y"), 2, 2)) + 16);
+                                                               $i++) { ?>
                                                         <option value="<?= $numeric->zeroFill($i, 2) ?>"><?= $numeric->zeroFill($i, 2) ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -489,7 +480,14 @@ if ($action === "cc") {
                                     <div class="row">
                                         <div class="col-xl-12 col-lg-12 col-sm-4" align="center">
                                             <button class="btn">Cadastrar Cartão de Crédito</button>
-                                            <p class="mute"><i class="fa fa-lock"></i>&nbsp;Ambiente seguro.</p>
+                                            <div class="allowed_cards">
+                                                <i class="fab fa-cc-visa"></i>
+                                                <i class="fab fa-cc-mastercard"></i>
+                                                <i class="fab fa-cc-amex"></i>
+                                                <i class="fab fa-cc-diners-club"></i>
+                                            </div>
+                                            <p class="mute small-text"><i class="fa fa-lock"></i>&nbsp;Ambiente seguro.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

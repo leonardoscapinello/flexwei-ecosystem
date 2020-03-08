@@ -3,11 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="1a6e2a38-6b3c-4e32-861f-a4f71cafa93a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/javascript/flexwei.script.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/javascript/flexwei.script.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/less/stylesheet.less" beforeDir="false" afterPath="$PROJECT_DIR$/public/less/stylesheet.less" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/stylesheet/controltabs.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/stylesheet/controltabs.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/stylesheet/stylesheet.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/stylesheet/stylesheet.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/stylesheet/stylesheet.min.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/stylesheet/stylesheet.min.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/class/AccountsCards.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/AccountsCards.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/class/ContractsInvoices.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/ContractsInvoices.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/class/CreditCard.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/CreditCard.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/class/Text.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/Text.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/customer/profile/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/customer/profile/index.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +96,7 @@
       <workItem from="1583434661027" duration="8066000" />
       <workItem from="1583524878233" duration="14258000" />
       <workItem from="1583582545787" duration="11689000" />
-      <workItem from="1583680960144" duration="757000" />
+      <workItem from="1583680960144" duration="6544000" />
     </task>
     <servers />
   </component>
@@ -124,13 +128,13 @@
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="656" y="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583680963321" />
-    <state x="616" y="243" key="run.anything.popup" timestamp="1583165102196">
+    <state x="616" y="243" key="run.anything.popup" timestamp="1583683477596">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="616" y="243" key="run.anything.popup/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583165102196" />
-    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup" timestamp="1583436791087">
+    <state x="616" y="243" key="run.anything.popup/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583683477596" />
+    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup" timestamp="1583683247128">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583436791087" />
+    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583683247128" />
   </component>
 </project>

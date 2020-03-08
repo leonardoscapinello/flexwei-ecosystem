@@ -31,6 +31,23 @@ class AccountsCards
         return false;
     }
 
+    public function list($id_account = 0)
+    {
+        global $database;
+        global $session;
+        global $numeric;
+        if (!$id_account || intval($id_account) === 0) $id_account = $session->getIdAccount();
+        if (not_empty($id_account) && $numeric->is_number($id_account)) {
+            $database->query("SELECT id_account_card, brand, last_digits, is_valid, is_default FROM accounts_cards WHERE id_account = ? AND is_active = 'Y'");
+            $database->bind(1, $id_account);
+            $result = $database->resultset();
+            if ($result && count($result) > 0) {
+                return $result;
+            }
+        }
+        return array();
+    }
+
     private function cardExists($number, $expire)
     {
         global $database;
@@ -39,7 +56,7 @@ class AccountsCards
         try {
             $id_account = $account->getIdAccount();
             $last_digits = substr($number, -4);
-            $database->query("SELECT id_account_card, last_digits, expiration_date FROM accounts_cards WHERE id_account = ?");
+            $database->query("SELECT id_account_card, last_digits, expiration_date FROM accounts_cards WHERE id_account = ? AND is_active = 'Y'");
             $database->bind(1, $id_account);
             $result = $database->resultset();
             if (count($result) > 0) {
@@ -69,6 +86,7 @@ class AccountsCards
         global $security;
         global $creditCard;
         $lastid = 0;
+        $err = $errmsg = "";
         try {
 
             $id_account = $account->getIdAccount();
@@ -77,9 +95,8 @@ class AccountsCards
             if ($this->cardExists($number, $expire)) return $this->cardExists($number, $expire);
 
             // CHECK IF IS A VALID CREDIT CARD
-            $err = $errmsg = "";
 
-            if (!$creditCard->validate($number, $err, $errmsg)) return false;
+            if (!$creditCard->validate($number, $err, $errmsg)) return array(0, $errmsg);
 
 
             $card = (array)$this->create($number, $holder, $expire, $cvv);
@@ -122,13 +139,13 @@ class AccountsCards
 
             }
 
-            return $lastid;
+            return array($lastid, "Successo");
 
         } catch (Exception $exception) {
             error_log($exception);
         }
 
-        return false;
+        return array(0, $errmsg);
 
     }
 

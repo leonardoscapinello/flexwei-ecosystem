@@ -148,3 +148,7 @@ function setUsername(checkbox, id_field) {
         }
     }
 }
+
+function viewCard(id) {
+
+}

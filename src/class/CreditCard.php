@@ -105,11 +105,11 @@ class CreditCard
         $cardname = $this->getBrand($cardnumber);
         $cards = $this->validate_array;
         $ccErrorNo = 0;
-        $ccErrors [0] = "Tipo de cartão desconhecido";
-        $ccErrors [1] = "Número do cartão de crédito não fornecido";
-        $ccErrors [2] = "O formato do número do cartão de crédito é inválido";
-        $ccErrors [3] = "O número do cartão de crédito é inválido.";
-        $ccErrors [4] = "O tamanho do cartão de crédito é inválido.";
+        $ccErrors [0] = "Não foi possível identificar a bandeira do cartão fornecido. Verifique se você digitou o número corretamente.";
+        $ccErrors [1] = "Não encontramos o número do cartão, digite-o e tente novamente.";
+        $ccErrors [2] = "O formato do número do cartão é inválido";
+        $ccErrors [3] = "O número do cartão é inválido.";
+        $ccErrors [4] = "A quantidade de dígitos do cartão fornecido não corresponde com a quantidade de digitos esperada. Se esse erro persistir, entre em contato com nosso suporte para seguirmos com o atendimento manual..";
         // Establish card type
         $cardType = -1;
         for ($i = 0; $i < sizeof($cards); $i++) {

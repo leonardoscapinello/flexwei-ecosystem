@@ -14,7 +14,7 @@ html {
 }
 
 .mute {
-  opacity: .5;
+  color: #bdc3c7;
 }
 
 .header {
@@ -539,7 +539,7 @@ a {
 
 
 input:read-only {
-  opacity: .35;
+  color: #bdc3c7;
 }
 
 .cards_inner__card {
@@ -640,6 +640,43 @@ input:read-only {
   left: 50%;
   transform: translate(-50%, 0);
   font-size: 0.938em;
+}
+
+.default_card {
+  position: absolute;
+  top: 33px;
+  right: 10px;
+  font-size: 1em;
+  color: rgb(255, 101, 1);
+}
+
+.remove_card {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1em;
+  color: #1f222e;
+  -webkit-transition: all .4s;
+  -moz-transition: all .4s;
+  -ms-transition: all .4s;
+  -o-transition: all .4s;
+  transition: all .4s;
+}
+
+.cards_inner__card:hover {
+  & .remove_card {
+    color: #42EBD5;
+  }
+}
+
+.disabled {
+  filter: grayscale(1);
+  opacity: .5;
+  cursor: pointer;
+
+  & .default_card {
+    display: none !important;
+  }
 }
 
 
@@ -793,3 +830,18 @@ input[type="checkbox"] {
   -webkit-animation-name: explode;
   animation-name: explode;
 }
+
+.allowed_cards {
+  margin-top: 15px;
+
+  & i {
+    margin: 0 3px;
+    color: #bdc3c7;
+    font-size: 1.6em;
+  }
+}
+
+.small-text {
+  font-size: .85em;
+}
+

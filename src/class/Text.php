@@ -88,6 +88,11 @@ class Text
         return false;
     }
 
+    public function bold($str)
+    {
+        return "<b>" . $str . "</b>";
+    }
+
     public function replaceSpecialCharacters($str)
     {
         $replace = [

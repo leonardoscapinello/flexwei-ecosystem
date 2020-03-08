@@ -60,17 +60,19 @@ class ContractsInvoices
 
                     for ($i = 1; $i <= $installments; $i++) {
                         $invoice_key = $this->createInvoiceKey();
+                        $url_token = $this->createUniqueKey();
                         $installment_number = $i;
                         if (!$this->installmentExists($id_contract, $installment_number)) {
                             $partial_amount = (intval($total_amount) / intval($installments));
                             $due_date = $this->createDueDate($id_contract, $installment_number);
-                            $database->query("INSERT INTO contracts_invoices (id_contract, id_account, invoice_key, installment_number, amount, due_date) VALUES (?,?,?,?,?,?)");
+                            $database->query("INSERT INTO contracts_invoices (id_contract, id_account, invoice_key, installment_number, amount, due_date, url_token) VALUES (?,?,?,?,?,?,?)");
                             $database->bind(1, $id_contract);
                             $database->bind(2, $id_account);
                             $database->bind(3, $invoice_key);
                             $database->bind(4, $installment_number);
                             $database->bind(5, $partial_amount);
                             $database->bind(6, $due_date);
+                            $database->bind(7, $url_token);
                             $database->execute();
                         }
                     }
@@ -118,6 +120,31 @@ class ContractsInvoices
         global $token;
         global $text;
         return $text->uppercase($text->removeSpace("FW" . $token->tokenNumeric(8) . "-" . $token->tokenNumeric(2)));
+    }
+
+    private function createUniqueKey()
+    {
+        global $token;
+        global $text;
+        global $numeric;
+        $day = date("d");
+        $month = date("m");
+        $year = date("Y");
+        $hour = date("H");
+        $minute = date("i");
+        $second = date("s");
+        $key = $token->tokenAlphanumeric(40);
+        $key .= $day . $month;
+        $key .= $token->tokenAlphanumeric(40);
+        $key .= $year;
+        $key .= $token->tokenAlphanumeric(40);
+        $key .= $hour;
+        $key .= $token->tokenAlphanumeric(40);
+        $key .= $minute;
+        $key .= $token->tokenAlphanumeric(40);
+        $key .= $second;
+        $key .= $token->tokenAlphanumeric(41);
+        return $text->uppercase($key);
     }
 
     private function installmentExists($id_contract, $installment_number)
@@ -214,8 +241,6 @@ class ContractsInvoices
     {
         return $this->id_customers;
     }
-
-
 
 
 }
