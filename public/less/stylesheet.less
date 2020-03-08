@@ -1,11 +1,15 @@
 * {
-  font-family: 'Gudea', sans-serif;
+  font-family: 'Montserrat', 'Lato', 'Gudea', sans-serif;
   line-height: 26px;
+  font-smooth: always;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body,
 html {
   overflow-x: hidden;
+  font-size: 16px;
   background: #FFFFFF;
 }
 
@@ -60,13 +64,13 @@ html {
 
       & h4 {
         color: rgba(255, 255, 255, .4);
-        font-size: 14px;
+        font-size: 0.7875em;
         text-transform: uppercase;
         border-bottom: 1px rgba(255, 255, 255, .1) solid;
         line-height: 20px;
         padding: 5px 0;
         margin-bottom: 10px;
-        font-weight: 300;
+        font-weight: 600;
       }
 
       & a {
@@ -75,6 +79,7 @@ html {
         line-height: 72px;
         text-transform: lowercase;
         transition: all .2s;
+        font-size: 0.875em;
 
         &:hover {
           color: #ED145B;
@@ -142,7 +147,7 @@ html {
   & h3 {
     color: #FFFFFF;
     display: block;
-    font-size: 25px;
+    font-size: 1.563em;
     line-height: 50px;
     text-transform: lowercase;
   }
@@ -151,10 +156,10 @@ html {
 
 .content {
   background: #FFFFFF;
-  font-size: 14px;
+  font-size: 0.875em;
 
   & h4 {
-    font-size: 17px;
+    font-size: 1.063em;
     line-height: 30px;
     margin: 13px 0;
   }
@@ -270,6 +275,7 @@ html {
     color: #8995a0;
     line-height: 40px;
     font-weight: 400;
+    font-size: .875em;
   }
 
   & input, & select, & textarea {
@@ -307,7 +313,7 @@ button.btn {
   border: 2px solid #ED145B;
   color: #ED145B;
   text-transform: uppercase;
-  font-size: 13px;
+  font-size: 0.750em;
   -webkit-transition-property: background, color;
   transition-property: background, color;
   -webkit-transition-duration: .2s;
@@ -413,7 +419,7 @@ button.btn {
   -ms-flex-align: center;
   align-items: center;
   padding: 0 1.25rem 0 0;
-  font-size: 32px;
+  font-size: 2em;
 }
 
 .alert .alert-text {
@@ -443,7 +449,7 @@ button.btn {
 
 .close {
   float: right;
-  font-size: 1.5rem;
+  font-size: 1.5em;
   font-weight: 700;
   line-height: 1;
   color: #000;
@@ -633,7 +639,7 @@ input:read-only {
   bottom: 10%;
   left: 50%;
   transform: translate(-50%, 0);
-  font-size: 15px;
+  font-size: 0.938em;
 }
 
 
