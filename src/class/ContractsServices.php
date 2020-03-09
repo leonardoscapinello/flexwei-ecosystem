@@ -38,7 +38,7 @@ class ContractsServices
         global $database;
         global $text;
         if (not_empty($document_key)) {
-            $database->query("SELECT * FROM contracts_services WHERE id_contract IN (SELECT id_contract FROM contracts WHERE document_key = ?)");
+            $database->query("SELECT * FROM contracts_services cs LEFT JOIN services sv ON sv.id_service = cs.id_service WHERE cs.id_contract IN (SELECT id_contract FROM contracts WHERE document_key = ?)");
             $database->bind(1, $document_key);
             $result = $database->resultset();
             if (count($result) > 0) {

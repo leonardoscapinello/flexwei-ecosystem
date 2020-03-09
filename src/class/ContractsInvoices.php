@@ -14,95 +14,6 @@ class ContractsInvoices
     private $insert_time;
     private $is_active;
 
-    public function load($id_contract_invoice)
-    {
-        global $database;
-        global $text;
-        if (not_empty($id_contract_invoice)) {
-            $database->query("SELECT * FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE (ci.id_contract_invoice = ? OR MD5(ci.id_contract_invoice) = ?)");
-            $database->bind(1, $id_contract_invoice);
-            $database->bind(2, $id_contract_invoice);
-            $result = $database->resultsetObject();
-            if ($result && count(get_object_vars($result)) > 0) {
-                foreach ($result as $key => $value) {
-                    $this->$key = $text->utf8($value);
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function loadByURLToken($url_token)
-    {
-        global $database;
-        global $text;
-        if (not_empty($url_token)) {
-            $database->query("SELECT ci.id_contract_invoice, ci.id_contract, ci.id_account, ci.invoice_key, ci.installment_number, ci.amount, ci.due_date, ci.insert_time, ci.is_active, ct.id_customer, ct.installments, ct.payday, ct.document_key FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE url_token = ?");
-            $database->bind(1, $url_token);
-            $result = $database->resultsetObject();
-            if ($result && count(get_object_vars($result)) > 0) {
-                foreach ($result as $key => $value) {
-                    $this->$key = $text->utf8($value);
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function massiveRegister($document_key)
-    {
-        global $database;
-        global $contracts;
-        global $contractsServices;
-        try {
-            if ($contracts->load($document_key)) {
-
-                $id_contract = $contracts->getIdContract();
-                $id_account = $contracts->getIdAccount();
-                $installments = $contracts->getInstallments();
-                $is_recurrent = $contracts->isRecurrent();
-
-
-                $services = $contractsServices->getServiceListByDocumentKey($document_key);
-
-
-                $total_amount = 0;
-                for ($i = 0; $i < count($services); $i++) {
-                    $amount = intval($services[$i]['total_amount']);
-                    $total_amount = ($total_amount + $amount);
-                }
-
-                if ($total_amount > 0) {
-
-                    for ($i = 1; $i <= $installments; $i++) {
-                        $invoice_key = $this->createInvoiceKey();
-                        $url_token = $this->createUniqueKey();
-                        $installment_number = $i;
-                        if (!$this->installmentExists($id_contract, $installment_number)) {
-                            $partial_amount = (intval($total_amount) / intval($installments));
-                            $due_date = $this->createDueDate($id_contract, $installment_number);
-                            $database->query("INSERT INTO contracts_invoices (id_contract, id_account, invoice_key, installment_number, amount, due_date, url_token) VALUES (?,?,?,?,?,?,?)");
-                            $database->bind(1, $id_contract);
-                            $database->bind(2, $id_account);
-                            $database->bind(3, $invoice_key);
-                            $database->bind(4, $installment_number);
-                            $database->bind(5, $partial_amount);
-                            $database->bind(6, $due_date);
-                            $database->bind(7, $url_token);
-                            $database->execute();
-                        }
-                    }
-                }
-
-
-            }
-
-        } catch (Exception $exception) {
-            error_log($exception);
-        }
-    }
 
     private function createDueDate($id_contract, $installment_number)
     {
@@ -179,6 +90,131 @@ class ContractsInvoices
         }
         return false;
     }
+
+
+    public function load($id_contract_invoice)
+    {
+        global $database;
+        global $text;
+        if (not_empty($id_contract_invoice)) {
+            $database->query("SELECT * FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE (ci.id_contract_invoice = ? OR MD5(ci.id_contract_invoice) = ?)");
+            $database->bind(1, $id_contract_invoice);
+            $database->bind(2, $id_contract_invoice);
+            $result = $database->resultsetObject();
+            if ($result && count(get_object_vars($result)) > 0) {
+                foreach ($result as $key => $value) {
+                    $this->$key = $text->utf8($value);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function loadByURLToken($url_token)
+    {
+        global $database;
+        global $text;
+        if (not_empty($url_token)) {
+            $database->query("SELECT ci.id_contract_invoice, ci.id_contract, ci.id_account, ci.invoice_key, ci.installment_number, ci.amount, ci.due_date, ci.insert_time, ci.is_active, ct.id_customer, ct.installments, ct.payday, ct.document_key FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE url_token = ?");
+            $database->bind(1, $url_token);
+            $result = $database->resultsetObject();
+            if ($result && count(get_object_vars($result)) > 0) {
+                foreach ($result as $key => $value) {
+                    $this->$key = $text->utf8($value);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getInvoicePastDebits($id_contract_invoice = 0)
+    {
+        global $database;
+        try {
+            if (!$id_contract_invoice || intval($id_contract_invoice) === 0) $id_contract_invoice = $this->getIdContractInvoice();
+            $database->query("SELECT ci.id_contract_invoice, ci.invoice_key, ci.due_date, ci.amount, IFNULL(tr.paid_amount, 0) AS invoice_paid, (ci.amount - IFNULL(tr.paid_amount, 0)) AS debits FROM contracts_invoices ci LEFT JOIN (SELECT id_contract_invoice, IFNULL(SUM(paid_amount), 0) paid_amount FROM transactions) tr ON tr.id_contract_invoice = ci.id_contract_invoice WHERE ci.id_contract = (SELECT id_contract FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.due_date < (SELECT due_date FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.is_active = 'Y' AND (ci.amount - IFNULL(tr.paid_amount, 0)) > 0");
+            $database->bind(1, $id_contract_invoice);
+            $database->bind(2, $id_contract_invoice);
+            $result = $database->resultset();
+            if (count($result) > 0) {
+                return $result;
+            }
+        } catch (Exception $exception) {
+
+        }
+    }
+
+    public function getSumTotalPastDebits($id_contract_invoice = 0)
+    {
+        global $database;
+        try {
+            if (!$id_contract_invoice || intval($id_contract_invoice) === 0) $id_contract_invoice = $this->getIdContractInvoice();
+            $database->query("SELECT SUM(ci.amount - IFNULL(tr.paid_amount, 0)) AS debits FROM contracts_invoices ci LEFT JOIN (SELECT id_contract_invoice, IFNULL(SUM(paid_amount), 0) paid_amount FROM transactions) tr ON tr.id_contract_invoice = ci.id_contract_invoice WHERE ci.id_contract = (SELECT id_contract FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.due_date < (SELECT due_date FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.is_active = 'Y' AND (ci.amount - IFNULL(tr.paid_amount, 0)) > 0");
+            $database->bind(1, $id_contract_invoice);
+            $database->bind(2, $id_contract_invoice);
+            $result = $database->resultset();
+            if (count($result) > 0) {
+                return $result[0]['debits'];
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return 0;
+    }
+
+    public function massiveRegister($document_key)
+    {
+        global $database;
+        global $contracts;
+        global $contractsServices;
+        try {
+            if ($contracts->load($document_key)) {
+
+                $id_contract = $contracts->getIdContract();
+                $id_account = $contracts->getIdAccount();
+                $installments = $contracts->getInstallments();
+                $is_recurrent = $contracts->isRecurrent();
+
+                $services = $contractsServices->getServiceListByDocumentKey($document_key);
+
+                $total_amount = 0;
+                for ($i = 0; $i < count($services); $i++) {
+                    $amount = intval($services[$i]['total_amount']);
+                    $total_amount = ($total_amount + $amount);
+                }
+
+                if ($total_amount > 0) {
+
+                    for ($i = 1; $i <= $installments; $i++) {
+                        $invoice_key = $this->createInvoiceKey();
+                        $url_token = $this->createUniqueKey();
+                        $installment_number = $i;
+                        if (!$this->installmentExists($id_contract, $installment_number)) {
+                            $partial_amount = (intval($total_amount) / intval($installments));
+                            $due_date = $this->createDueDate($id_contract, $installment_number);
+                            $database->query("INSERT INTO contracts_invoices (id_contract, id_account, invoice_key, installment_number, amount, due_date, url_token) VALUES (?,?,?,?,?,?,?)");
+                            $database->bind(1, $id_contract);
+                            $database->bind(2, $id_account);
+                            $database->bind(3, $invoice_key);
+                            $database->bind(4, $installment_number);
+                            $database->bind(5, $partial_amount);
+                            $database->bind(6, $due_date);
+                            $database->bind(7, $url_token);
+                            $database->execute();
+                        }
+                    }
+                }
+
+
+            }
+
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+    }
+
 
     /**
      * @return mixed

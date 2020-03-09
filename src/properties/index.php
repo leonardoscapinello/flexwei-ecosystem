@@ -66,6 +66,7 @@ $properties = new Properties();
 $stylesheet = new StyleSheetCompiler($properties->getDevelopment());
 $creditCard = new CreditCard();
 
+
 $less->compileFile(DIRNAME . "../../public/less/stylesheet.less", DIRNAME . "../../public/stylesheet/stylesheet.css");
 
 

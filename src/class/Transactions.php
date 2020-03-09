@@ -41,6 +41,21 @@ class Transactions
 
     private $instructions = "Após o vencimento cobrar muta de 2% e juros de 1% ao mês";
 
+
+    public function getTotalPaid($id_contract_invoice)
+    {
+        global $database;
+        if (not_empty($id_contract_invoice)) {
+            $database->query("SELECT SUM(paid_amount) AS paid_amount FROM transactions WHERE id_contract_invoice = ?");
+            $database->bind(1, $id_contract_invoice);
+            $result = $database->resultset();
+            if ($result && count($result) > 0) {
+                return $result[0]['paid_amount'];
+            }
+        }
+        return array();
+    }
+
     private function createBilletObject($id_contract_invoice)
     {
         global $pagarme;
@@ -223,5 +238,289 @@ class Transactions
 
         }
     }
+
+    /* ========== GETTERS */
+
+
+    /**
+     * @return string
+     */
+    public function getApiKey(): string
+    {
+        return $this->api_key;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCryptKey(): string
+    {
+        return $this->crypt_key;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdTransaction()
+    {
+        return $this->id_transaction;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdContractInvoice()
+    {
+        return $this->id_contract_invoice;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdTransactionExternal()
+    {
+        return $this->id_transaction_external;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdAcquirerExternal()
+    {
+        return $this->id_acquirer_external;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdDocumentExternal()
+    {
+        return $this->id_document_external;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdCustomerExternal()
+    {
+        return $this->id_customer_external;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTransactionToken()
+    {
+        return $this->transaction_token;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAuthorizationCode()
+    {
+        return $this->authorization_code;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAcquirerName()
+    {
+        return $this->acquirer_name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInvoiceAmount()
+    {
+        return $this->invoice_amount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAuthorizedAmount()
+    {
+        return $this->authorized_amount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPaidAmount()
+    {
+        return $this->paid_amount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRefundedAmount()
+    {
+        return $this->refunded_amount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInstallments()
+    {
+        return $this->installments;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCost()
+    {
+        return $this->cost;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBarcode()
+    {
+        return $this->barcode;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardBrand()
+    {
+        return $this->card_brand;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardHolderName()
+    {
+        return $this->card_holder_name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardLastDigits()
+    {
+        return $this->card_last_digits;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPaymentMethod()
+    {
+        return $this->payment_method;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDocumentUrl()
+    {
+        return $this->document_url;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIpAddress()
+    {
+        return $this->ip_address;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getResponseData()
+    {
+        return $this->response_data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPostbackUrl()
+    {
+        return $this->postback_url;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTid()
+    {
+        return $this->tid;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNsu()
+    {
+        return $this->nsu;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInsertTime()
+    {
+        return $this->insert_time;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreatedTime()
+    {
+        return $this->created_time;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdateTime()
+    {
+        return $this->update_time;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExpireDate()
+    {
+        return $this->expire_date;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsPaid()
+    {
+        return $this->is_paid;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInstructions(): string
+    {
+        return $this->instructions;
+    }
+
 
 }

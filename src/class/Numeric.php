@@ -8,10 +8,8 @@ class Numeric
 
     public function is_number($number)
     {
-        if (preg_match('/^[0-9.]+$/', $number)) {
-            if ($number > 0 && $number == round($number, 0)) {
+        if (preg_match('/^[0-9,.]+$/', $number)) {
                 return true;
-            }
         }
         return false;
     }
