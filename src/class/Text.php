@@ -66,7 +66,7 @@ class Text
         return null;
     }
 
-    public function lowecase($str)
+    public function lowercase($str)
     {
         $string = $str;
         if ($this->is_string($str)) {

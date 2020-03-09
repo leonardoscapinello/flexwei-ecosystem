@@ -176,7 +176,7 @@ require_once("./src/session/validate.php");
 
 </div>
 
-<link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+<link href="<?= $properties->getSiteURL() ?>public/fonts/gilroy/Gilroy.css" rel="stylesheet">
 <script type="text/javascript" src="<?= $properties->getSiteURL() ?>public/javascript/jquery-2.1.0.js"></script>
 <script type="text/javascript" src="<?= $properties->getSiteURL() ?>public/javascript/card.js"></script>
 <script type="text/javascript" src="<?= $properties->getSiteURL() ?>public/javascript/jquery.mask.js"></script>

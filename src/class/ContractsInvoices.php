@@ -5,7 +5,7 @@ class ContractsInvoices
 
     private $id_contract_invoice;
     private $id_contract;
-    private $id_customers;
+    private $id_customer;
     private $id_account;
     private $invoice_key;
     private $installment_number;
@@ -22,6 +22,24 @@ class ContractsInvoices
             $database->query("SELECT * FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE (ci.id_contract_invoice = ? OR MD5(ci.id_contract_invoice) = ?)");
             $database->bind(1, $id_contract_invoice);
             $database->bind(2, $id_contract_invoice);
+            $result = $database->resultsetObject();
+            if ($result && count(get_object_vars($result)) > 0) {
+                foreach ($result as $key => $value) {
+                    $this->$key = $text->utf8($value);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function loadByURLToken($url_token)
+    {
+        global $database;
+        global $text;
+        if (not_empty($url_token)) {
+            $database->query("SELECT ci.id_contract_invoice, ci.id_contract, ci.id_account, ci.invoice_key, ci.installment_number, ci.amount, ci.due_date, ci.insert_time, ci.is_active, ct.id_customer, ct.installments, ct.payday, ct.document_key FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE url_token = ?");
+            $database->bind(1, $url_token);
             $result = $database->resultsetObject();
             if ($result && count(get_object_vars($result)) > 0) {
                 foreach ($result as $key => $value) {
@@ -218,6 +236,14 @@ class ContractsInvoices
         return $this->due_date;
     }
 
+    public function getSmallDueDate()
+    {
+        global $date;
+        $month_name = $date->getMonthNameFromDate($this->due_date);
+        $month_name = substr($month_name, 0, 3);
+        return $month_name . " " . date("Y", strtotime($this->due_date));
+    }
+
     /**
      * @return mixed
      */
@@ -225,6 +251,16 @@ class ContractsInvoices
     {
         return $this->insert_time;
     }
+
+
+    public function getSmallInsertTime()
+    {
+        global $date;
+        $month_name = $date->getMonthNameFromDate($this->insert_time);
+        $month_name = substr($month_name, 0, 3);
+        return date("d", strtotime($this->insert_time)) . " " . $month_name . " " . date("Y", strtotime($this->insert_time));
+    }
+
 
     /**
      * @return mixed
@@ -237,9 +273,9 @@ class ContractsInvoices
     /**
      * @return mixed
      */
-    public function getIdCustomers()
+    public function getIdCustomer()
     {
-        return $this->id_customers;
+        return $this->id_customer;
     }
 
 

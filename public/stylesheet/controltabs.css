@@ -4,9 +4,10 @@
     background: #121212;
     margin-top: -2px;
     width: 100%;
-
+    font-size: 1.1em;
     display: flex;
     flex-wrap: wrap;
+    font-weight: 800;
 }
 
 
@@ -27,6 +28,7 @@
     border-right: 1px #DBDBDB solid;
     font-size: 0.875em;
     min-width: 10%;
+    font-weight: 500;
 }
 
 .tab button:first-child:nth-last-child(1) {

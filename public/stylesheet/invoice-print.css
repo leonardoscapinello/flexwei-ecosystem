@@ -1,0 +1,116 @@
+@page {
+    margin: .1in !important;
+}
+
+* {
+    font-family: 'Gilroy', 'Gudea', sans-serif;
+    font-smooth: always;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding: 0;
+    margin: 0;
+    -webkit-text-stroke: 0.45px rgba(0, 0, 0, 0.1);
+    text-shadow: #fff 0px 1px 1px;
+}
+
+
+.page {
+    width: 100vw;
+    max-width: 720px;
+    height: calc(100vh - 10px);
+    position: relative;
+    margin: 0 auto;
+    page-break-after: always;
+    background: #FFFFFF;
+    border-left: 1px #ccc solid;
+    border-right: 1px #ccc solid;
+    border-bottom: 1px #ccc solid;
+}
+
+.header {
+    display: block;
+    width: 100%;
+    height: 100px;
+    background: #FFFFFF;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    padding: 3px 10%;
+    text-align: center;
+}
+
+.header img.fullwidth {
+    width: 100%;
+}
+
+
+.section-welcome {
+    position: absolute;
+    top: 50%;
+    right: 5%;
+    transform: translate(0, -50%);
+    width: 75%;
+}
+
+.welcome-main-box {
+    display: block;
+    width: 100%;
+    position: relative;
+    margin: 40px 0;
+}
+
+.welcome-main-box .box {
+    display: inline-block;
+    width: 32%;
+}
+
+.welcome-main-box .box img {
+    width: 45px;
+}
+
+.welcome-main-box .box p {
+    height: 140px;
+    overflow: hidden;
+    color: rgba(178, 183, 183, 1);
+    margin-top: 12px;
+    padding-right: 20px;
+    text-align: justify;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 32pt;
+    font-weight: 800;
+}
+
+.pink {
+    color: #ED145B;
+}
+
+.header-customer {
+    margin: 25px 0;
+}
+
+.header-customer p {
+    display: block;
+    font-size: .85em;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 20px;
+}
+
+.header-customer p span {
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.section-resume {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    position: absolute;
+    top: 150px;
+    width: 85%;
+    left: 15%;
+}

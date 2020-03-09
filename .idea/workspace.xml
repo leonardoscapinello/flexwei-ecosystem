@@ -2,16 +2,77 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1a6e2a38-6b3c-4e32-861f-a4f71cafa93a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Black.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Black.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Black.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-BlackItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-BlackItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-BlackItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Bold.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Bold.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Bold.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-BoldItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-BoldItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-BoldItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Extrabold.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Extrabold.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Extrabold.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-ExtraboldItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-ExtraboldItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-ExtraboldItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Heavy.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Heavy.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Heavy.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-HeavyItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-HeavyItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-HeavyItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Light.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Light.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Light.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-LightItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-LightItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-LightItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Medium.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Medium.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Medium.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-MediumItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-MediumItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-MediumItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Regular.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Regular.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Regular.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-RegularItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-RegularItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-RegularItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Semibold.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Semibold.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Semibold.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-SemiboldItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-SemiboldItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-SemiboldItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Thin.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Thin.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-Thin.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-ThinItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-ThinItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-ThinItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-UltraLightItalic.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-UltraLightItalic.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy-UltraLightItalic.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/gilroy/Gilroy.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/invoices/invoice-header-smallest.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/stylesheet/invoice-print.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modules/external/view-invoice.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.htaccess" beforeDir="false" afterPath="$PROJECT_DIR$/.htaccess" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/javascript/flexwei.script.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/javascript/flexwei.script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/less/stylesheet.less" beforeDir="false" afterPath="$PROJECT_DIR$/public/less/stylesheet.less" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/stylesheet/controltabs.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/stylesheet/controltabs.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/stylesheet/stylesheet.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/stylesheet/stylesheet.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/stylesheet/stylesheet.min.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/stylesheet/stylesheet.min.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/class/AccountsCards.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/AccountsCards.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/ContractsInvoices.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/ContractsInvoices.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/class/CreditCard.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/CreditCard.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/class/Date.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/Date.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/Text.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/Text.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/customer/profile/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/customer/profile/index.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,31 +108,34 @@
     </include_path>
   </component>
   <component name="ProjectId" id="1YGwzz8S5OmrpR90UH46wXJzO8r" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/class" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/public/fonts" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\wamp64\www\flexweisistema\src\class" />
-      <recent name="C:\wamp64\www\flexweisistema\public\javascript" />
-      <recent name="C:\wamp64\www\flexweisistema\public\stylesheet" />
-      <recent name="C:\wamp64\www\flexweisistema\public\fonts\lineawesome" />
-      <recent name="C:\wamp64\www\flexweisistema\src" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\wamp64\www\flexweisistema\src\class" />
       <recent name="C:\wamp64\www\flexweisistema\src\modules" />
       <recent name="C:\wamp64\www\flexweisistema\src\modules\content" />
       <recent name="C:\wamp64\www\flexweisistema\src\session" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\wamp64\www\flexweisistema\public\fonts" />
+      <recent name="C:\wamp64\www\flexweisistema\public\stylesheet" />
+      <recent name="C:\wamp64\www\flexweisistema\src\modules\external" />
+      <recent name="C:\wamp64\www\flexweisistema\src\class" />
+      <recent name="C:\wamp64\www\flexweisistema\public\javascript" />
     </key>
   </component>
   <component name="SvnConfiguration">
@@ -96,12 +160,16 @@
       <workItem from="1583434661027" duration="8066000" />
       <workItem from="1583524878233" duration="14258000" />
       <workItem from="1583582545787" duration="11689000" />
-      <workItem from="1583680960144" duration="6544000" />
+      <workItem from="1583680960144" duration="10141000" />
+      <workItem from="1583755959970" duration="3627000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="765" y="242" key="#com.intellij.ide.util.MemberChooser" timestamp="1583586350605">
@@ -124,14 +192,14 @@
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="794" y="449" key="NewPhpFileDialog/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583582928511" />
-    <state x="656" y="350" key="com.intellij.ide.util.TipDialog" timestamp="1583680963321">
+    <state x="656" y="350" key="com.intellij.ide.util.TipDialog" timestamp="1583755959334">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="656" y="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583680963321" />
-    <state x="616" y="243" key="run.anything.popup" timestamp="1583683477596">
+    <state x="656" y="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583755959334" />
+    <state x="616" y="243" key="run.anything.popup" timestamp="1583759624764">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="616" y="243" key="run.anything.popup/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583683477596" />
+    <state x="616" y="243" key="run.anything.popup/0.0.1920.1050/-1920.0.1920.1050@0.0.1920.1050" timestamp="1583759624764" />
     <state x="623" y="227" width="672" height="678" key="search.everywhere.popup" timestamp="1583683247128">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>

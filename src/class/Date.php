@@ -85,6 +85,32 @@ class Date
         return date($format, strtotime($str));
     }
 
+    public function getMonthNameFromDate($date)
+    {
+        try {
+            if ($date !== null) {
+                $month = date("m", strtotime($date));
+                $months = array(
+                    '01' => 'Janeiro',
+                    '02' => 'Fevereiro',
+                    '03' => 'Março',
+                    '04' => 'Abril',
+                    '05' => 'Maio',
+                    '06' => 'Junho',
+                    '07' => 'Julho',
+                    '08' => 'Agosto',
+                    '09' => 'Setembro',
+                    '10' => 'Outubro',
+                    '11' => 'Novembro',
+                    '12' => 'Dezembro'
+                );
+                return $months[$month];
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return null;
+    }
 
     /*
      * $return_type = array("Y", "M", "D", "H", "I", "S");
