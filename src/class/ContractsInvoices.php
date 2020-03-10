@@ -92,6 +92,13 @@ class ContractsInvoices
     }
 
 
+    public function invoiceDocumentAlreadyRendered($invoice_key)
+    {
+        $file = DIRNAME . "../public/documents/" . $invoice_key . ".pdf";
+        return file_exists($file);
+    }
+
+
     public function load($id_contract_invoice)
     {
         global $database;
@@ -215,6 +222,68 @@ class ContractsInvoices
         }
     }
 
+    public function getThisMonthInvoice($id_contract = 0)
+    {
+        global $database;
+        global $numeric;
+        try {
+            if ($numeric->isIdentity($id_contract)) {
+                $database->query("SELECT * FROM contracts_invoices WHERE id_contract = ? AND (due_date >= NOW() + INTERVAL 2 DAY AND due_date < NOW() + INTERVAL 10 DAY) ORDER BY id_contract_invoice DESC LIMIT 1");
+                $database->bind(1, $id_contract);
+                $result = $database->resultset();
+                if (count($result) > 0) {
+                    return $result[0];
+                }
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return array();
+    }
+
+    public function getAllPastInvoices($id_contract = 0)
+    {
+        global $database;
+        global $numeric;
+        try {
+            if ($numeric->isIdentity($id_contract)) {
+                $database->query("SELECT * FROM contracts_invoices WHERE id_contract = ? AND is_active = 'Y' AND id_contract_invoice != (SELECT id_contract_invoice FROM contracts_invoices WHERE id_contract = ? AND (due_date >= NOW() + INTERVAL 2 DAY AND due_date < NOW() + INTERVAL 10 DAY) ORDER BY id_contract_invoice DESC LIMIT 1) ORDER BY due_date ASC");
+                $database->bind(1, $id_contract);
+                $database->bind(2, $id_contract);
+                $result = $database->resultset();
+                if (count($result) > 0) {
+                    return $result;
+                }
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return array();
+    }
+
+    public function render($url_token, $invoice_key)
+    {
+        global $database;
+        global $properties;
+        try {
+            $url = $properties->getSiteURL() . "e/i/render/" . $url_token . "?filename=" . $invoice_key;
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_HEADER, true);    // we want headers
+            curl_setopt($ch, CURLOPT_NOBODY, true);    // we don't need body
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            $output = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($httpcode === 200) {
+                $database->query("UPDATE contracts_invoices SET is_rendered = 'Y' WHERE is_rendered = 'N' AND invoice_key = ?");
+                $database->bind(1, $invoice_key);
+                $database->execute();
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+    }
 
     /**
      * @return mixed
