@@ -151,6 +151,11 @@ class AccountsAddress
         return $this->country;
     }
 
+    public function getCountrySingle()
+    {
+        return $this->country === "Brasil" ? "br" : $this->country;
+    }
+
     /**
      * @return mixed
      */

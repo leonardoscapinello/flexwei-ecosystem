@@ -1115,3 +1115,11 @@ input[type="checkbox"] {
 a:hover {
   text-decoration: none;
 }
+ul.bullet {
+  list-style: circle;
+}
+ul.bullet li {
+  list-style: circle;
+  margin-left: 40px;
+  margin-top: 10px;
+}

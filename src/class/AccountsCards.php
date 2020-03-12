@@ -3,27 +3,44 @@
 class AccountsCards
 {
 
+    private $id_account_card;
+    private $id_account;
+    private $id_card_external;
+    private $fingerprint;
+    private $holder;
+    private $last_digits;
+    private $brand;
+    private $country;
+    private $expiration_date;
+    private $insert_time;
+    private $date_created;
+    private $date_updated;
+    private $is_active;
+    private $is_valid;
+    private $is_default;
 
-    public function __construct($id_account = 0)
+
+    public function __construct($id_card = 0, $id_account = 0)
     {
-        //$this->load($id_account);
+        $this->load($id_card, $id_account);
     }
 
     public function load($id_card = 0, $id_account = 0)
     {
         global $database;
         global $text;
-        global $session;
+        global $account;
         global $numeric;
-        if (!$id_account || intval($id_account) === 0) $id_account = $session->getIdAccount();
+        if (!$id_account || intval($id_account) === 0) $id_account = $account->getIdAccount();
         if (not_empty($id_account) && $numeric->is_number($id_account)) {
-            $database->query("SELECT * FROM accounts_cards WHERE id_account = ? AND id_account_card = ?");
+            $database->query("SELECT * FROM accounts_cards WHERE id_account = ? AND (id_account_card = ? OR MD5(id_account_card)  = ?)");
             $database->bind(1, $id_account);
             $database->bind(2, $id_card);
+            $database->bind(3, $id_card);
             $result = $database->resultsetObject();
             if ($result && count(get_object_vars($result)) > 0) {
                 foreach ($result as $key => $value) {
-                    $this->$key = $text->base64_decode($value);
+                    $this->$key = $value;
                 }
                 return true;
             }
@@ -193,9 +210,9 @@ class AccountsCards
     /**
      * @return mixed
      */
-    public function getCardHolder()
+    public function getHolder()
     {
-        return $this->card_holder;
+        return $this->holder;
     }
 
     /**

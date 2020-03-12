@@ -2,7 +2,10 @@ let module_redir = "./redirect2module/";
 let tab_param = "v:";
 
 function gotoPage(module_url, parameter) {
-    window.location.href = atob(module_url) + "/" + parameter;
+    if (parameter.length > 2) {
+        parameter = "/" + parameter;
+    }
+    window.location.href = atob(module_url) + parameter;
 }
 
 

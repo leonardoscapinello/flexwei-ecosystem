@@ -85,7 +85,7 @@ class Numeric
 
     public function removeEverythingNotNumber($number)
     {
-        return intval(preg_replace("/[^0-9]/", "", $number));
+        return (preg_replace("/[^0-9]/", "", $number));
     }
 
     public function placeDecimalDigits($number)

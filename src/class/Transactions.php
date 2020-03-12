@@ -42,11 +42,39 @@ class Transactions
     private $instructions = "Após o vencimento cobrar muta de 2% e juros de 1% ao mês";
 
 
+    /* REGISTER ON PAGAR.ME */
+
+
+    public function register($id_contract_invoice, $credit_card = false)
+    {
+        global $pagarme;
+        try {
+            if ($credit_card) {
+                $object = $this->createCreditCardObject($id_contract_invoice, $credit_card);
+            } else {
+                $object = $this->createBilletObject($id_contract_invoice);
+            }
+            if ($object !== null) {
+                $result = $pagarme->transactions()->create($object);
+                $this->store($id_contract_invoice, $result);
+                return true;
+            }
+        } catch (Exception $exception) {
+            echo $exception;
+            error_log($exception);
+        }
+        return false;
+    }
+
+
+    /* ============================= */
+
+
     public function getTotalPaid($id_contract_invoice)
     {
         global $database;
         if (not_empty($id_contract_invoice)) {
-            $database->query("SELECT SUM(paid_amount) AS paid_amount FROM transactions WHERE id_contract_invoice = ?");
+            $database->query("SELECT SUM(paid_amount) AS paid_amount FROM transactions WHERE id_contract_invoice = ? AND status = 'paid'");
             $database->bind(1, $id_contract_invoice);
             $result = $database->resultset();
             if ($result && count($result) > 0) {
@@ -54,56 +82,6 @@ class Transactions
             }
         }
         return array();
-    }
-
-    private function createBilletObject($id_contract_invoice)
-    {
-        global $pagarme;
-        global $objects;
-        global $date;
-        global $numeric;
-        global $contracts;
-        global $contractsInvoices;
-
-        try {
-            if ($contractsInvoices->load($id_contract_invoice)) {
-                $customer = new Accounts($contractsInvoices->getIdCustomers());
-                $contracts->loadById($contractsInvoices->getIdContract());
-                $postback = $this->createPostbackURL($id_contract_invoice);
-
-                echo $postback;
-
-                $object = [
-                    "amount" => $numeric->removeEverythingNotNumber($contractsInvoices->getAmount()),
-                    "payment_method" => "boleto",
-                    "async" => false,
-                    "boleto_instructions" => $this->instructions,
-                    "boleto_expiration_date" => $date->str2date($contractsInvoices->getDueDate()),
-                    "postback_url" => $postback,
-                    "customer" => [
-                        "external_id" => $objects->fastStr($customer->getIdAccount()),
-                        "name" => $objects->fastStr($customer->getFullName()),
-                        "boleto_fine" => $date->str2date($contractsInvoices->getDueDate()),
-                        "boleto_fine[amount]" => $numeric->removeEverythingNotNumber((($contractsInvoices->getAmount() * 0.02) * 100)),
-                        "boleto_interest[amount]" => $numeric->removeEverythingNotNumber((($contractsInvoices->getAmount() * $contracts->getTaxDailyDelay()) * 100)),
-                        "type" => "individual",
-                        "country" => "br",
-                        "documents" => [
-                            [
-                                "type" => "cpf",
-                                "number" => $objects->fastStr($customer->getDocument())
-                            ]
-                        ],
-                        "phone_numbers" => [$objects->fastStr($customer->getPhoneNumber())],
-                        "email" => $objects->fastStr($customer->getEmail())
-                    ]
-                ];
-                return $object;
-            }
-        } catch (Exception $exception) {
-            error_log($exception);
-        }
-        return null;
     }
 
     private function isTransactionAlreadyCreated($id_contract_invoce)
@@ -126,8 +104,10 @@ class Transactions
         global $numeric;
         global $date;
         global $token;
+        global $contractsInvoices;
         try {
             if ($transaction_result !== null && $transaction_result !== "") {
+
 
                 $sess = $transaction_result;
 
@@ -194,11 +174,46 @@ class Transactions
                 $database->execute();
 
 
+                $this->updateStatusForPaid($id_contract_invoice);
+
             }
         } catch (Exception $exception) {
-
+            echo($exception);
+            error_log($exception);
         }
     }
+
+
+    public function updateStatusForPaid($id_contract_invoice)
+    {
+        global $numeric;
+        global $database;
+        try {
+            if ($numeric->isIdentity($id_contract_invoice)) {
+                $loadedInvoice = new ContractsInvoices($id_contract_invoice);
+                $paid_amount = $this->getTotalPaid($id_contract_invoice);
+                $total2pay = ($loadedInvoice->getSumTotalPastDebits() + $loadedInvoice->getAmount()) - $paid_amount;
+                if (intval($total2pay) === 0) {
+                    $status = 3;
+                } elseif ($total2pay > 0 && $paid_amount > 0) {
+                    $status = 4;
+                } else {
+                    $status = 2;
+                }
+
+                $database->query("UPDATE contracts_invoices SET status = ? WHERE id_contract_invoice = ?");
+                $database->bind(1, $status);
+                $database->bind(2, $id_contract_invoice);
+                $database->execute();
+
+            }
+        } catch (Exception $exception) {
+            echo $exception;
+            error_log($exception);
+        }
+        return false;
+    }
+
 
     private function createTransactionToken()
     {
@@ -207,20 +222,6 @@ class Transactions
         return $text->uppercase($text->removeSpace("FWTR" . $token->tokenNumeric(6) . "-" . $token->tokenNumeric(2)));
     }
 
-
-    public function registerBillet($id_contract_invoice)
-    {
-        global $pagarme;
-        try {
-            $object = $this->createBilletObject($id_contract_invoice);
-            if ($object !== null) {
-                $result = $pagarme->transactions()->create($object);
-                $this->store($id_contract_invoice, $result);
-            }
-        } catch (Exception $exception) {
-            error_log($exception);
-        }
-    }
 
     public function createPostbackURL($id_contract_invoice)
     {
@@ -257,6 +258,150 @@ class Transactions
     }
 
 
+    /* ========== OBJECTS TREATMENT */
+
+
+    private function createBilletObject($id_contract_invoice)
+    {
+        global $pagarme;
+        global $objects;
+        global $date;
+        global $numeric;
+        global $contracts;
+        global $contractsInvoices;
+
+        try {
+            if ($contractsInvoices->load($id_contract_invoice)) {
+                $customer = new Accounts($contractsInvoices->getIdCustomer());
+                $contracts->loadById($contractsInvoices->getIdContract());
+                $postback = $this->createPostbackURL($id_contract_invoice);
+
+
+                $object = [
+                    "amount" => $numeric->removeEverythingNotNumber($contractsInvoices->getTotalToPay()),
+                    "payment_method" => "boleto",
+                    "async" => false,
+                    "boleto_instructions" => $this->instructions,
+                    "boleto_expiration_date" => $date->str2date($contractsInvoices->getDueDate()),
+                    "boleto_fine" => $date->str2date($contractsInvoices->getDueDate()),
+                    "boleto_fine[amount]" => $numeric->removeEverythingNotNumber((($contractsInvoices->getAmount() * 0.02) * 100)),
+                    "boleto_interest[amount]" => $numeric->removeEverythingNotNumber((($contractsInvoices->getAmount() * $contracts->getTaxDailyDelay()) * 100)),
+                    "postback_url" => $postback,
+                    "customer" => [
+                        "external_id" => $objects->fastStr($customer->getIdAccount()),
+                        "name" => $objects->fastStr($customer->getFullName()),
+                        "type" => "individual",
+                        "country" => "br",
+                        "documents" => [
+                            [
+                                "type" => "cpf",
+                                "number" => $objects->fastStr($customer->getDocument())
+                            ]
+                        ],
+                        "phone_numbers" => [$objects->fastStr($customer->getPhoneNumber())],
+                        "email" => $objects->fastStr($customer->getEmail())
+                    ]
+                ];
+                return $object;
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return null;
+    }
+
+    private function createCreditCardObject($id_contract_invoice, $id_account_card = null)
+    {
+        global $pagarme;
+        global $objects;
+        global $date;
+        global $numeric;
+        global $contracts;
+        global $contractsInvoices;
+        global $security;
+
+        try {
+            if ($contractsInvoices->load($id_contract_invoice)) {
+
+                $customer = new Accounts($contractsInvoices->getIdCustomer());
+                $customerAddress = new AccountsAddress($contractsInvoices->getIdCustomer());
+                $contracts->loadById($contractsInvoices->getIdContract());
+                $postback = $this->createPostbackURL($id_contract_invoice);
+                $security->setIdAccount($contractsInvoices->getIdCustomer());
+
+                $newCard = new AccountsCards($id_account_card, $contractsInvoices->getIdCustomer());
+
+                $id_external_card = $newCard->getIdCardExternal();
+                $id_card = $security->decrypt($id_external_card);
+
+
+                $object = [
+                    "amount" => $numeric->removeEverythingNotNumber($contractsInvoices->getTotalToPay()),
+                    "payment_method" => "credit_card",
+                    "async" => false,
+                    "card_id" => $id_card,
+                    'card_holder_name' => $objects->fastStr($security->decrypt($newCard->getHolder())),
+                    "postback_url" => $postback,
+                    "customer" => [
+                        "external_id" => $objects->fastStr($customer->getIdAccount()),
+                        "name" => $objects->fastStr($customer->getFullName()),
+                        "type" => "individual",
+                        "country" => "br",
+                        "documents" => [
+                            [
+                                "type" => "cpf",
+                                "number" => $objects->fastStr($customer->getDocument())
+                            ]
+                        ],
+                        "phone_numbers" => ["+" . $objects->fastStr($customer->getPhoneNumber())],
+                        "email" => $objects->fastStr($customer->getEmail())
+                    ],
+                    "billing" => [
+                        "name" => $customer->getFullName(),
+                        "address" => [
+                            "country" => $objects->fastStr($customerAddress->getCountrySingle()),
+                            "street" => $objects->fastStr($customerAddress->getStreet()),
+                            "street_number" => $objects->fastStr($customerAddress->getNumber()),
+                            "state" => $objects->fastStr($customerAddress->getState()),
+                            "city" => $objects->fastStr($customerAddress->getCity()),
+                            "neighborhood" => $objects->fastStr($customerAddress->getNeighborhood()),
+                            "zipcode" => $objects->fastStr($numeric->removeEverythingNotNumber($customerAddress->getZipcode()))
+                        ]
+                    ],
+                    'shipping' => [
+                        'name' => $customer->getFullName(),
+                        'fee' => 0,
+                        'delivery_date' => date("Y-m-d"),
+                        'expedited' => true,
+                        'address' => [
+                            "country" => $objects->fastStr($customerAddress->getCountrySingle()),
+                            "street" => $objects->fastStr($customerAddress->getStreet()),
+                            "street_number" => $objects->fastStr($customerAddress->getNumber()),
+                            "state" => $objects->fastStr($customerAddress->getState()),
+                            "city" => $objects->fastStr($customerAddress->getCity()),
+                            "neighborhood" => $objects->fastStr($customerAddress->getNeighborhood()),
+                            "zipcode" => $objects->fastStr($numeric->removeEverythingNotNumber($customerAddress->getZipcode()))
+                        ]
+                    ],
+                    "items" => [
+                        [
+                            'id' => '1',
+                            'title' => 'Serviço de Teste',
+                            'unit_price' => 300,
+                            'quantity' => 1,
+                            'tangible' => true
+                        ],
+                    ]
+                ];
+                print_r($object);
+                echo "<hr>";
+                return $object;
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return null;
+    }
 
     /* ========== GETTERS */
 

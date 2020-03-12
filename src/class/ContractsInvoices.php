@@ -15,6 +15,10 @@ class ContractsInvoices
     private $is_active;
     private $status;
 
+    public function __construct($id_contract_invoice = 0)
+    {
+        $this->load($id_contract_invoice);
+    }
 
     private function createDueDate($id_contract, $installment_number)
     {
@@ -81,7 +85,7 @@ class ContractsInvoices
     {
         global $database;
         try {
-            $database->query("SELECT id_contract FROM contracts_invoices WHERE id_contract = ? AND installment_number = ?");
+            $database->query("SELECT id_contract FROM contracts_invoices WHERE id_contract = ? AND installment_number = ? AND is_active = 'Y'");
             $database->bind(1, $id_contract);
             $database->bind(2, $installment_number);
             $result = $database->resultset();
@@ -104,16 +108,21 @@ class ContractsInvoices
     {
         global $database;
         global $text;
-        if (not_empty($id_contract_invoice)) {
-            $database->query("SELECT * FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE (ci.id_contract_invoice = :invoice OR MD5(ci.id_contract_invoice) = :invoice) OR ci.invoice_key = :invoice");
-            $database->bind(":invoice", $id_contract_invoice);
-            $result = $database->resultsetObject();
-            if ($result && count(get_object_vars($result)) > 0) {
-                foreach ($result as $key => $value) {
-                    $this->$key = $text->utf8($value);
+        global $numeric;
+        try {
+            if (not_empty($id_contract_invoice)) {
+                $database->query("SELECT * FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE (ci.id_contract_invoice = :invoice OR MD5(ci.id_contract_invoice) = :invoice) OR ci.invoice_key = :invoice");
+                $database->bind(":invoice", $id_contract_invoice);
+                $result = $database->resultsetObject();
+                if ($result && count(get_object_vars($result)) > 0) {
+                    foreach ($result as $key => $value) {
+                        $this->$key = $text->utf8($value);
+                    }
+                    return true;
                 }
-                return true;
             }
+        } catch (Exception $exception) {
+            error_log($exception);
         }
         return false;
     }
@@ -281,7 +290,7 @@ class ContractsInvoices
         global $numeric;
         try {
             if ($numeric->isIdentity($id_contract)) {
-                $database->query("SELECT * FROM contracts_invoices WHERE id_contract = ? AND (due_date >= NOW() + INTERVAL 2 DAY AND due_date < NOW() + INTERVAL 15 DAY) ORDER BY id_contract_invoice DESC LIMIT 1");
+                $database->query("SELECT * FROM contracts_invoices WHERE id_contract = ? AND (due_date >= NOW() + INTERVAL 2 DAY AND due_date < NOW() + INTERVAL 15 DAY) AND is_active = 'Y' ORDER BY id_contract_invoice DESC LIMIT 1");
                 $database->bind(1, $id_contract);
                 $result = $database->resultset();
                 if (count($result) > 0) {
@@ -378,6 +387,24 @@ class ContractsInvoices
         return $res;
     }
 
+    public function isPaid()
+    {
+        global $numeric;
+        global $transactions;
+        try {
+            $id_contract_invoice = $this->getIdContractInvoice();
+            if ($numeric->isIdentity($id_contract_invoice)) {
+                $paid_amount = $transactions->getTotalPaid($id_contract_invoice);
+                $total2pay = ($this->getSumTotalPastDebits() + $this->getAmount()) - $paid_amount;
+                if (intval($total2pay) === 0) return true;
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return false;
+    }
+
+
     /**
      * @return mixed
      */
@@ -424,6 +451,14 @@ class ContractsInvoices
     public function getAmount()
     {
         return $this->amount;
+    }
+
+    public function getTotalToPay()
+    {
+        global $transactions;
+        $paid_amount = $transactions->getTotalPaid($this->getIdContractInvoice());
+        $total2pay = ($this->getSumTotalPastDebits() + $this->getAmount()) - $paid_amount;
+        return $total2pay * 100; // convert to cents
     }
 
     /**

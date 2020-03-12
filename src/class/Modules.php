@@ -131,10 +131,18 @@ class Modules
         return $final_url;
     }
 
-    public function getEncodedModuleUrlById($id_module)
+    public function getEncodedModuleUrlById($id_module, $view = null)
     {
         global $text;
-        return $text->base64_encode($this->getModuleUrlById($id_module));
+        if ($view !== null && !is_array($view)) {
+            return $text->base64_encode($this->getModuleUrlById($id_module) . "#v:" . $view);
+        } else {
+            if (is_array($view)) {
+                $qu = http_build_query($view);
+                return $text->base64_encode($this->getModuleUrlById($id_module) . "?" . $qu);
+            }
+            return $text->base64_encode($this->getModuleUrlById($id_module));
+        }
     }
 
 

@@ -4,6 +4,10 @@ $invoice = $text->base64_decode($invoice);
 if (!$contractsInvoices->load($invoice)) die;
 $contracts->loadById($contractsInvoices->getIdContract());
 
+if($contracts->getIdCustomer() !== $account->getIdAccount()){
+    die("Você não pode visualizar elementos de outros usuários");
+}
+
 ?>
 
 
