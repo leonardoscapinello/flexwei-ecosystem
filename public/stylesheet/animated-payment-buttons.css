@@ -1,0 +1,154 @@
+:root {
+    --background: #33837e;
+    --left-side: #5de2a3;
+    --card: #c7ffbc;
+    --card-line: #80ea69;
+    --button-color-3: #26850e;
+    --button-color-2: #379e1f;
+    --button-color-1: #56be3e;
+    --post: #dddde0;
+    --numbers: #838183;
+    --numbers-2: #aaa9ab;
+    --post-line: #757375;
+    --post-line2: #545354;
+    --dollar: #4b953b;
+}
+
+.button-block {
+    margin: 30px 0;
+    display: flex;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+
+.left-side {
+    background-color: var(--left-side);
+    width: 130px;
+    height: 120px;
+    border-radius: 4px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.3s;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.left-side.billet {
+    background: #5dbae2;
+}
+
+.right-side {
+    position: relative;
+    background: #ffffff;
+    width: calc(100% - 130px);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    justify-content: space-between;
+    white-space: nowrap;
+    transition: 0.3s;
+}
+
+
+.card {
+    width: 70px;
+    height: 46px;
+    background-color: var(--card);
+    border-radius: 6px;
+    position: absolute;
+    display: flex;
+    z-index: 10;
+    flex-direction: column;
+    align-items: center;
+    -webkit-box-shadow: 9px 9px 9px -2px rgba(77, 200, 143, 0.72);
+    -moz-box-shadow: 9px 9px 9px -2px rgba(77, 200, 143, 0.72);
+    box-shadow: 9px 9px 9px -2px rgba(77, 200, 143, 0.72);
+}
+
+.card-line {
+    width: 65px;
+    height: 13px;
+    background-color: var(--card-line);
+    border-radius: 2px;
+    margin-top: 7px;
+}
+
+.card-buttons {
+    width: 8px;
+    height: 8px;
+    background-color: var(--button-color-2);
+    box-shadow: 0 -10px 0 0 var(--button-color-3), 0 10px 0 0 var(--button-color-1);
+    border-radius: 50%;
+    margin-top: 5px;
+    transform: rotate(90deg);
+    margin: 10px 0 0 -30px;
+}
+
+
+.billet-el {
+    width: 56px;
+    height: 70px;
+    background-color: #FFFFFF;
+    border-radius: 6px;
+    position: absolute;
+    display: flex;
+    z-index: 10;
+    flex-direction: column;
+    align-items: center;
+    -webkit-box-shadow: 9px 9px 9px -2px rgba(46, 92, 176, 0.32);
+    -moz-box-shadow: 9px 9px 9px -2px rgba(46, 92, 176, 0.32);
+    box-shadow: 9px 9px 9px -2px rgba(46, 92, 176, 0.32);
+}
+
+.billet-line {
+    width: 75%;
+    height: 4px;
+    background-color: #5d5d5d;
+    border-radius: 2px;
+    margin-top: 6px;
+}
+
+.billet-line-half {
+    display: inline-block;
+    width: 15%;
+    height: 4px;
+    background-color: #5d5d5d;
+    border-radius: 2px;
+    margin-top: 4px;
+}
+
+
+.choose-payment {
+    padding: 0 30px;
+    box-sizing: border-box;
+}
+
+.new {
+    padding-left: 20px;
+    font-size: 1em;
+    font-weight: 500;
+}
+
+.new:after {
+    background: url('../images/arrow-right.svg') center center no-repeat;
+    background-size: 22px 22px;
+    position: absolute;
+    display: block;
+    content: "";
+    width: 60px;
+    height: 60px;
+    top: 50%;
+    right: 0;
+    transform: translate(0, -50%);
+}
+
+
+.button-block:hover .right-side,
+.button-block .right-side:hover {
+    background: #f1f2f4;
+}

@@ -13,6 +13,7 @@ class ContractsInvoices
     private $due_date;
     private $insert_time;
     private $is_active;
+    private $status;
 
 
     private function createDueDate($id_contract, $installment_number)
@@ -104,9 +105,8 @@ class ContractsInvoices
         global $database;
         global $text;
         if (not_empty($id_contract_invoice)) {
-            $database->query("SELECT * FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE (ci.id_contract_invoice = ? OR MD5(ci.id_contract_invoice) = ?)");
-            $database->bind(1, $id_contract_invoice);
-            $database->bind(2, $id_contract_invoice);
+            $database->query("SELECT * FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE (ci.id_contract_invoice = :invoice OR MD5(ci.id_contract_invoice) = :invoice) OR ci.invoice_key = :invoice");
+            $database->bind(":invoice", $id_contract_invoice);
             $result = $database->resultsetObject();
             if ($result && count(get_object_vars($result)) > 0) {
                 foreach ($result as $key => $value) {
@@ -171,7 +171,37 @@ class ContractsInvoices
         return 0;
     }
 
-    public function massiveRegister($document_key)
+
+    public function getAllContractsHasNotCreatedAllInvoicesAndDo()
+    {
+        global $database;
+        global $contracts;
+        global $contractsServices;
+        try {
+
+            $database->query("SELECT ct.installments, IFNULL(ci.rendered_invoices, 0) rendered_invoices, ct.document_key FROM contracts ct LEFT JOIN (SELECT COUNT(id_contract_invoice) rendered_invoices, id_contract FROM contracts_invoices  GROUP BY id_contract) ci ON ci.id_contract = ct.id_contract WHERE created_invoices = 'N'");
+            $resultSet = $database->resultset();
+            if (count($resultSet) > 0) {
+                for ($i = 0; $i < count($resultSet); $i++) {
+                    $document_key = $resultSet[$i]['document_key'];
+                    $installments = $resultSet[$i]['installments'];
+                    $rendered_invoices = $resultSet[$i]['rendered_invoices'];
+                    if (intval($rendered_invoices) >= intval($installments)) {
+                        $this->setContractInvoicesCreated($document_key, true);
+                    } else {
+                        $this->massiveRegister($document_key);
+                    }
+                }
+            }
+
+        } catch (Exception $exception) {
+            echo $exception;
+            error_log($exception);
+        }
+    }
+
+
+    private function massiveRegister($document_key)
     {
         global $database;
         global $contracts;
@@ -222,13 +252,36 @@ class ContractsInvoices
         }
     }
 
+    private function setContractInvoicesCreated($document_key, $boolean = true)
+    {
+        global $database;
+        try {
+            $database->query("UPDATE contracts SET created_invoices = ? WHERE document_key = ?");
+            $resultset = $database->resultset();
+            if (count($resultset) > 0) {
+                for ($i = 0; $i < count($resultset); $i++) {
+                    $document_key = $resultset[$i]['document_key'];
+                    $installments = $resultset[$i]['installments'];
+                    $rendered_invoices = $resultset[$i]['rendered_invoices'];
+                    if (intval($installments) >= intval($rendered_invoices)) {
+                        $this->setContractInvoicesCreated($document_key, true);
+                    } else {
+                        $this->massiveRegister($document_key);
+                    }
+                }
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+    }
+
     public function getThisMonthInvoice($id_contract = 0)
     {
         global $database;
         global $numeric;
         try {
             if ($numeric->isIdentity($id_contract)) {
-                $database->query("SELECT * FROM contracts_invoices WHERE id_contract = ? AND (due_date >= NOW() + INTERVAL 2 DAY AND due_date < NOW() + INTERVAL 10 DAY) ORDER BY id_contract_invoice DESC LIMIT 1");
+                $database->query("SELECT * FROM contracts_invoices WHERE id_contract = ? AND (due_date >= NOW() + INTERVAL 2 DAY AND due_date < NOW() + INTERVAL 15 DAY) ORDER BY id_contract_invoice DESC LIMIT 1");
                 $database->bind(1, $id_contract);
                 $result = $database->resultset();
                 if (count($result) > 0) {
@@ -247,9 +300,29 @@ class ContractsInvoices
         global $numeric;
         try {
             if ($numeric->isIdentity($id_contract)) {
-                $database->query("SELECT * FROM contracts_invoices WHERE id_contract = ? AND is_active = 'Y' AND id_contract_invoice != (SELECT id_contract_invoice FROM contracts_invoices WHERE id_contract = ? AND (due_date >= NOW() + INTERVAL 2 DAY AND due_date < NOW() + INTERVAL 10 DAY) ORDER BY id_contract_invoice DESC LIMIT 1) ORDER BY due_date ASC");
+                $database->query("SELECT * FROM contracts_invoices WHERE id_contract = ? AND is_active = 'Y' AND id_contract_invoice != (SELECT id_contract_invoice FROM contracts_invoices WHERE id_contract = ? AND (due_date >= NOW() + INTERVAL 2 DAY AND due_date < NOW() + INTERVAL 15 DAY) ORDER BY id_contract_invoice DESC LIMIT 1) ORDER BY due_date ASC");
                 $database->bind(1, $id_contract);
                 $database->bind(2, $id_contract);
+                $result = $database->resultset();
+                if (count($result) > 0) {
+                    return $result;
+                }
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return array();
+    }
+
+
+    public function getAllInvoices($id_contract = 0)
+    {
+        global $database;
+        global $numeric;
+        try {
+            if ($numeric->isIdentity($id_contract)) {
+                $database->query("SELECT * FROM contracts_invoices WHERE id_contract = ? AND is_active = 'Y' ORDER BY due_date ASC");
+                $database->bind(1, $id_contract);
                 $result = $database->resultset();
                 if (count($result) > 0) {
                     return $result;
@@ -276,13 +349,33 @@ class ContractsInvoices
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             if ($httpcode === 200) {
-                $database->query("UPDATE contracts_invoices SET is_rendered = 'Y' WHERE is_rendered = 'N' AND invoice_key = ?");
+                $database->query("UPDATE contracts_invoices SET is_rendered = 'Y', status = 2 WHERE is_rendered = 'N' AND invoice_key = ?");
                 $database->bind(1, $invoice_key);
                 $database->execute();
             }
         } catch (Exception $exception) {
             error_log($exception);
         }
+    }
+
+    public function getStatusProperties($id_contract_invoice = 0)
+    {
+        global $database;
+        global $text;
+        // array(caption, css class);
+        $res = array("Não Processado", "");
+        try {
+            if (!$id_contract_invoice || intval($id_contract_invoice) === 0) $id_contract_invoice = $this->getIdContractInvoice();
+            $database->query("SELECT value_caption, value_class FROM cust_values WHERE list_name = 'status' AND value_key = (SELECT status FROM contracts_invoices WHERE id_contract_invoice = ?)");
+            $database->bind(1, $id_contract_invoice);
+            $result = $database->resultset();
+            if (count($result) > 0) {
+                $res = array($text->utf8($result[0]['value_caption']), $result[0]['value_class']);
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return $res;
     }
 
     /**
@@ -381,6 +474,14 @@ class ContractsInvoices
     public function getIdCustomer()
     {
         return $this->id_customer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
 

@@ -1072,3 +1072,46 @@ input[type="checkbox"] {
 .current-month-invoice .actions {
   padding-top: 17px;
 }
+.stamp {
+  background: #f6f6f6;
+  display: inline-block;
+  color: #212529;
+  text-align: center;
+  vertical-align: middle;
+  cursor: default;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 1px solid transparent;
+  line-height: 1.5;
+  -webkit-transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
+  transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
+  padding: .5rem 1rem;
+  font-size: .85em;
+  border-radius: .2rem;
+  font-weight: 600;
+}
+.stamp.success {
+  background-color: rgba(10,187,135,0.1);
+  color: #0abb87;
+  cursor: text !important;
+}
+.stamp.danger {
+  background-color: rgba(253,57,122,0.1);
+  color: #fd397a;
+  cursor: text !important;
+}
+.stamp.info {
+  background-color: rgba(93,120,255,0.1);
+  color: #5d78ff;
+  cursor: text !important;
+}
+.stamp.warning {
+  background-color: rgba(255,184,34,0.1);
+  color: #ffb822;
+  cursor: text !important;
+}
+a:hover {
+  text-decoration: none;
+}

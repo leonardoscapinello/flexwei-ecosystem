@@ -264,7 +264,7 @@ if (not_empty($document_key)) $contracts->load($document_key);
 
                     <?php
                     $month_invoice = $contractsInvoices->getThisMonthInvoice($contracts->getIdContract());
-                    $all_past_invoices = $contractsInvoices->getAllPastInvoices($contracts->getIdContract());
+                    $all_past_invoices = $contractsInvoices->getAllInvoices($contracts->getIdContract());
                     $exist_this_month_invoice = intval(count($month_invoice));
                     $exist_past_months_invoices = intval(count($all_past_invoices));
                     $all_docs = $exist_this_month_invoice + $exist_past_months_invoices;
@@ -277,9 +277,8 @@ if (not_empty($document_key)) $contracts->load($document_key);
                                         <div class="col-xl-6 col-lg-6 col-sm-12">
                                             <h4>Olá, <?= $account->getFirstName() ?>.</h4>
                                             <p>Sua fatura do mês
-                                                de <?= $date->getMonthNameFromDate($month_invoice['due_date']) ?> já
-                                                está
-                                                disponível para download.</p>
+                                                de <?= $text->lowercase($date->getMonthNameFromDate($month_invoice['due_date'])) ?> já
+                                                está disponível para download.</p>
                                         </div>
                                         <div class="offset-2"></div>
                                         <div class="col-xl-4 col-lg-4 col-sm-12 actions" style="text-align: right">
@@ -289,7 +288,8 @@ if (not_empty($document_key)) $contracts->load($document_key);
                                             <a href="<?= $modules->getModuleUrlById(6) ?>?iv=<?= $text->base64_encode($month_invoice['invoice_key']) ?>"
                                                class="btn" tooltip="Continuar para pagamento" flow="up"><i
                                                         class="fal fa-money-check"></i></a>
-                                            <a href="#" class="btn" tooltip="Preciso de ajuda, chamar o suporte" flow="up"><i
+                                            <a href="#" class="btn" tooltip="Preciso de ajuda, chamar o suporte"
+                                               flow="up"><i
                                                         class="fal fa-headset"></i></a>
                                         </div>
                                     </div>
@@ -305,7 +305,7 @@ if (not_empty($document_key)) $contracts->load($document_key);
                                     <div class="container">
                                         <div class="row">
                                             <div class="col-xl-3 col-lg-3 col-sm-12">Documento</div>
-                                            <div class="col-xl-3 col-lg-3 col-sm-12">Valor</div>
+                                            <div class="col-xl-2 col-lg-3 col-sm-12">Valor</div>
                                             <div class="col-xl-2 col-lg-2 col-sm-12">Vencimento</div>
                                             <div class="col-xl-2 col-lg-2 col-sm-12">Status</div>
                                             <div class="col-xl-2 col-lg-2 col-sm-12"></div>
@@ -314,6 +314,7 @@ if (not_empty($document_key)) $contracts->load($document_key);
                                 </div>
                                 <?php
                                 for ($i = 0; $i < $exist_past_months_invoices; $i++) {
+                                    $invoiceStatusProperties = $contractsInvoices->getStatusProperties($all_past_invoices[$i]['id_contract_invoice']);
                                     ?>
                                     <div class="list-item">
                                         <div class="container">
@@ -322,20 +323,22 @@ if (not_empty($document_key)) $contracts->load($document_key);
                                                     <b><?= $all_past_invoices[$i]['invoice_key'] ?></b>
                                                     <p class="mute"></p>
                                                 </div>
-                                                <div class="col-xl-3 col-lg-3 col-sm-12 line-middle">
+                                                <div class="col-xl-2 col-lg-2 col-sm-12 line-middle">
                                                     R$ <?= $numeric->money($all_past_invoices[$i]['amount']) ?></div>
                                                 <div class="col-xl-2 col-lg-2 col-sm-12 line-middle"><?= $date->formatDate($all_past_invoices[$i]['due_date']) ?></div>
-                                                <div class="col-xl-2 col-lg-2 col-sm-12 line-middle"></div>
+                                                <div class="col-xl-3 col-lg-3 col-sm-12 line-middle">
+                                                    <span class="stamp <?= $invoiceStatusProperties[1] ?>"><?= $invoiceStatusProperties[0] ?></span>
+                                                </div>
                                                 <div class="col-xl-2 col-lg-2 col-sm-12 line-middle">
-                                                    <?php if ($all_past_invoices[$i]['is_rendered'] === "Y") { ?>
+                                                    <?php if ($all_past_invoices[$i]['is_rendered'] === "Y" && $all_past_invoices[$i]['status'] !== "1") { ?>
                                                         <a href="<?= $properties->getSiteURL() ?>download/documents/<?= $all_past_invoices[$i]['invoice_key'] ?>"
                                                            class="btn" tooltip="Baixar Fatura" flow="up"><i
-                                                                class="fal fa-download"></i></a>
+                                                                    class="fal fa-download"></i></a>
                                                     <?php } else { ?>
-                                                    <a href="#" class="btn disabled"
-                                                       tooltip="Aguarde até fechamento para baixar essa fatura."
-                                                       flow="up"><i
-                                                                class="fal fa-download"></i></a>
+                                                        <a href="#" class="btn disabled"
+                                                           tooltip="Aguarde até fechamento para baixar essa fatura."
+                                                           flow="up"><i
+                                                                    class="fal fa-download"></i></a>
                                                     <?php } ?>
 
                                                 </div>

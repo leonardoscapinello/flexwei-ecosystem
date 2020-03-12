@@ -19,6 +19,7 @@ class StyleSheetCompiler
             $this->add(DIRNAME . "../../public/stylesheet/stylesheet.css");
             $this->add(DIRNAME . "../../public/stylesheet/controltabs.css");
             $this->add(DIRNAME . "../../public/stylesheet/tooltip.css");
+            $this->add(DIRNAME . "../../public/stylesheet/animated-payment-buttons.css");
             $this->setOutputFile(DIRNAME . "../../public/stylesheet/stylesheet");
             $this->addReplace("../images/", $properties->getSiteURL() . "public/images/");
             $this->addReplace("../fonts/",  $properties->getSiteURL() . "public/fonts/");

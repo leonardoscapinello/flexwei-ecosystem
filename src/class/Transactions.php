@@ -239,6 +239,25 @@ class Transactions
         }
     }
 
+
+    public function getPaidAmountForInvoice($invoice_key)
+    {
+        global $database;
+        try {
+            $database->query("SELECT IFNULL(SUM(paid_amount), 0) AS paid_amount FROM transactions WHERE id_contract_invoice = (SELECT id_contract_invoice FROM contracts_invoices WHERE invoice_key = ?)");
+            $database->bind(1, $invoice_key);
+            $result = $database->resultset();
+            if (count($result) > 0) {
+                return $result[0]['paid_amount'];
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return 0;
+    }
+
+
+
     /* ========== GETTERS */
 
 
@@ -521,6 +540,5 @@ class Transactions
     {
         return $this->instructions;
     }
-
 
 }
