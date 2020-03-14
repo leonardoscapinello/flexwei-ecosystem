@@ -115,14 +115,6 @@ if ($contracts->getIdCustomer() !== $account->getIdAccount()) {
                         </div>
                         <br/>
                         <br/>
-                        <div class="row">
-                            <div class="col-xl-12 col-lg-12 col-sm-12">
-                                <a href="<?= $properties->getSiteURL() ?>download/documents/<?= $invoice ?>"
-                                   class="btn" tooltip="Baixar Fatura (espelho) sem código de barras" flow="up"><i
-                                            class="fal fa-download"></i> Fazer Download da Fatura</a>
-                            </div>
-                        </div>
-
 
                     </div>
                 </div>
@@ -132,43 +124,74 @@ if ($contracts->getIdCustomer() !== $account->getIdAccount()) {
 
         <div class="col-xl-5 col-lg-5 col-sm-12">
             <div class="content-block">
-                <h5>FINALIZAR PAGAMENTO USANDO</h5>
 
 
-                <div class="choose-payment">
+                <?php if ($contractsInvoices->isPaid()) { ?>
 
-                    <a href="<?= $modules->getModuleUrlById(9) ?>?c&iv=<?= $text->base64_encode($invoice) ?>">
-                        <div class="button-block">
-                            <div class="left-side">
-                                <div class="card">
-                                    <div class="card-line"></div>
-                                    <div class="card-buttons"></div>
+                    <div class="alert alert-success fade show" role="alert">
+                        <div class="alert-icon"><i class="fal fa-smile-wink"></i></div>
+                        <div class="alert-text">
+                            Por aqui, tudo certo! Você já fez o pagamento e recebemos o valor de
+                            <b>R$ <?= $numeric->money($transactions->getPaidAmountForInvoice($contractsInvoices->getInvoiceKey())) ?>
+                                .</b>
+                        </div>
+                        <div class="alert-close">
+                            <button type="button" class="alert-close close" data-dismiss="alert"
+                                    aria-label="Close">
+                                <span aria-hidden="true"><i class="la la-close"></i></span>
+                            </button>
+                        </div>
+                    </div>
+
+                <?php } else { ?>
+
+
+                    <h5>FINALIZAR PAGAMENTO USANDO</h5>
+
+
+                    <div class="choose-payment">
+
+                        <a href="<?= $modules->getModuleUrlById(9) ?>?c&iv=<?= $text->base64_encode($invoice) ?>">
+                            <div class="button-block">
+                                <div class="left-side">
+                                    <div class="card">
+                                        <div class="card-line"></div>
+                                        <div class="card-buttons"></div>
+                                    </div>
+                                </div>
+                                <div class="right-side">
+                                    <div class="new">Cartão de Crédito</div>
                                 </div>
                             </div>
-                            <div class="right-side">
-                                <div class="new">Cartão de Crédito</div>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
 
-                    <a href="<?= $modules->getModuleUrlById(10) ?>?c&iv=<?= $text->base64_encode($invoice) ?>">
-                        <div class="button-block">
-                            <div class="left-side billet">
-                                <div class="billet-el">
-                                    <div class="billet-line"></div>
-                                    <div class="billet-line"></div>
-                                    <div class="billet-line"></div>
-                                    <div class="billet-line"></div>
-                                    <div class="billet-line"></div>
+                        <a href="<?= $modules->getModuleUrlById(10) ?>?c&iv=<?= $text->base64_encode($invoice) ?>">
+                            <div class="button-block">
+                                <div class="left-side billet">
+                                    <div class="billet-el">
+                                        <div class="billet-line"></div>
+                                        <div class="billet-line"></div>
+                                        <div class="billet-line"></div>
+                                        <div class="billet-line"></div>
+                                        <div class="billet-line"></div>
+                                    </div>
+                                </div>
+                                <div class="right-side">
+                                    <div class="new">Boleto Bancário</div>
                                 </div>
                             </div>
-                            <div class="right-side">
-                                <div class="new">Boleto Bancário</div>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
 
-                </div>
+                        <br>
+
+                        <a href="<?= $properties->getSiteURL() ?>download/documents/<?= $invoice ?>"
+                           class="btn" tooltip="Baixar Fatura (espelho) sem código de barras" flow="up"><i
+                                    class="fal fa-download"></i> Fazer Download da Fatura</a>
+
+                    </div>
+
+
+                <?php } ?>
 
             </div>
 

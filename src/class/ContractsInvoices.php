@@ -128,7 +128,7 @@ class ContractsInvoices
         $res = array("Não Processado", "");
         try {
             if (!$id_contract_invoice || intval($id_contract_invoice) === 0) $id_contract_invoice = $this->getIdContractInvoice();
-            $database->query("SELECT value_caption, value_class FROM cust_values WHERE list_name = 'status' AND value_key = (SELECT status FROM contracts_invoices WHERE id_contract_invoice = ?)");
+            $database->query("SELECT value_caption, value_class FROM cust_values WHERE list_name = 'finance_status' AND value_key = (SELECT status FROM contracts_invoices WHERE id_contract_invoice = ?)");
             $database->bind(1, $id_contract_invoice);
             $result = $database->resultset();
             if (count($result) > 0) {

@@ -1,9 +1,9 @@
 <?php
 $id_service = get_request("prm1");
-if (not_empty($id_service)) $contractsServices->load($id_service);
+if (not_empty($id_service)) $contractsServices = new ContractsServices($id_service);
 
 $id_contract = $contractsServices->getIdContract();
-if (not_empty($id_contract)) $contracts->loadById($id_contract);
+if (not_empty($id_contract)) $contracts = new Contracts($id_contract);
 ?>
 
 <div class="tab-header">
