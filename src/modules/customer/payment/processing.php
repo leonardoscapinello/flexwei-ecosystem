@@ -1,7 +1,12 @@
 <?php
 $invoice = get_request("iv");
 $transaction = get_request("tr");
-header("refresh:5;url=" . $modules->getModuleUrlById(9) . "?iv=" . $invoice . "&proc=" . $transaction);
+
+$blt = get_request("blt");
+$id_module = 9;
+if ($blt !== null) $id_module = 10;
+
+header("refresh:4;url=" . $modules->getModuleUrlById($id_module) . "?iv=" . $invoice . "&proc=" . $transaction);
 
 ?>
 

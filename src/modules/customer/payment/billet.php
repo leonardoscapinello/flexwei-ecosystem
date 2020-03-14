@@ -4,25 +4,21 @@ $paywith = get_request("paywith");
 $processed_transaction_id = get_request("proc");
 $invoice = $text->base64_decode($invoice);
 
-if (!$contractsInvoices->load($invoice)) die("Fatura não reconhecida");
-
-
-$invoice_loaded = $contractsInvoices->load($text->base64_decode($invoice));
-if (!$invoice_loaded) die("Você não pode acessar essa informação");
+$contractsInvoices = new ContractsInvoices($invoice);
 
 
 $paid_amount = $transactions->getTotalPaid($contractsInvoices->getIdContractInvoice());
-$total2pay = ($contractsInvoices->getSumTotalPastDebits() + $contractsInvoices->getAmount()) - $paid_amount;
+$total2pay = ($contractsInvoices->getPastDebitsAmount() + $contractsInvoices->getAmount()) - $paid_amount;
 
 
 if ($paywith !== null) {
 
-    $card_loaded = $accountsCards->load($paywith);
-    if (!$card_loaded) die("Você não pode acessar essa informação");
-
-    $id_transaction = $transactions->register($contractsInvoices->getIdContractInvoice(), $accountsCards->getIdAccountCard());
-    header("location: " . $modules->getModuleUrlById(11) . "?iv=" . $text->base64_encode($invoice) . "&tr=" . $text->base64_encode($id_transaction));
-    die;
+    $id_transaction = $transactions->register($contractsInvoices->getIdContractInvoice(), false);
+    echo $id_transaction;
+    if ($id_transaction !== null && $id_transaction !== "" && $id_transaction) {
+        header("location: " . $modules->getModuleUrlById(11) . "?iv=" . $text->base64_encode($invoice) . "&tr=" . $text->base64_encode($id_transaction) . "&blt=Y");
+        die;
+    }
 
 }
 
@@ -45,19 +41,32 @@ $transaction_status = "";
                     </tr>
                     <tr>
                         <td>Débitos Anteriores</td>
-                        <td align="right">R$ <?= $numeric->money($contractsInvoices->getSumTotalPastDebits()) ?></td>
+                        <td align="right">R$ <?= $numeric->money($contractsInvoices->getPastDebitsAmount()) ?></td>
                     </tr>
                     <tr>
-                        <td>Pagamentos Recebidos</td>
-                        <td align="right">R$ <?= $numeric->money($paid_amount) ?></td>
+                        <td>Cobranças adicionais por atraso</td>
+                        <td align="right">R$ <?= $numeric->money($contractsInvoices->getTaxAmount()) ?></td>
                     </tr>
                     <tr>
                         <td>Fatura Atual</td>
                         <td align="right">R$ <?= $numeric->money($contractsInvoices->getAmount()) ?></td>
                     </tr>
                     <tr>
-                        <td>Total para Pagamento</td>
-                        <td align="right"><b>R$ <?= $numeric->money($total2pay) ?></b></td>
+                        <td>Total para pagamento</td>
+                        <td align="right">
+                            R$ <?= $numeric->money($contractsInvoices->getAmountSumPast()) ?></td>
+                    </tr>
+
+                    <tr>
+                        <td>Pagamentos Recebidos</td>
+                        <td align="right">
+                            <span class="green">
+                            R$ <?= $numeric->money($transactions->getPaidAmountForInvoice($contractsInvoices->getInvoiceKey())) ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Total restante</td>
+                        <td align="right"><b>R$ <?= $numeric->money($contractsInvoices->getAmount2Pay()) ?></b></td>
                     </tr>
                 </table>
 
@@ -71,7 +80,8 @@ $transaction_status = "";
                     if (count($billets) > 0) {
                         for ($ix = 0; $ix < count($billets); $ix++) { ?>
 
-                            <a href="<?=$properties->getSiteURL()?>download/external?f=<?=$text->base64_encode($billets[$ix]['document_url'])?>" target="_blank">
+                            <a href="<?= $properties->getSiteURL() ?>download/external?f=<?= $text->base64_encode($billets[$ix]['document_url']) ?>"
+                               target="_blank">
                                 <div class="billet-download-block">
                                     <div class="container">
                                         <div class="row">
@@ -97,7 +107,10 @@ $transaction_status = "";
                         <?php }
                     } else { ?>
 
-                        <button class="btn">Sim, emitir boleto bancário</button>
+                        <button class="btn"
+                                onClick="gotoPage('<?= $modules->getEncodedModuleUrlById(10, array("iv" => $text->base64_encode($invoice), "paywith" => md5("billet"))) ?>', '');return false;">
+                            Sim, emitir boleto bancário
+                        </button>
 
                     <?php } ?>
 
@@ -136,7 +149,8 @@ $transaction_status = "";
 
                 <p style="text-align: justify">Alguns pontos importantes para pagamento com boleto bancário:</p>
                 <ul class="bullet">
-                    <li>O tempo de compensação do pagamento fica em torno de 48 à 72 horas úteis, contando a partir do
+                    <li>O tempo de compensação do pagamento fica em torno de 48 &agrave; 72 horas úteis, contando a
+                        partir do
                         próximo dia útil após o pagamento.
                     </li>
                     <li>Após a data de vencimento não é possível concluir o pagamento na mesma via do boleto, sendo

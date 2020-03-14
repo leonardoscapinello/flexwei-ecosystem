@@ -82,6 +82,7 @@ class Transactions
                 return $this->store($id_contract_invoice, $result);
             }
         } catch (Exception $exception) {
+            echo $exception;
             error_log($exception);
         }
         return false;
@@ -215,8 +216,7 @@ class Transactions
 
                 $last_id = $database->lastInsertId();
 
-
-                $this->setThisAndPastAsPaid($id_contract_invoice, $paid_amount);
+                if ($payment_method !== "boleto" && $status === "paid") $this->setThisAndPastAsPaid($id_contract_invoice, $paid_amount, $last_id);
 
                 return $last_id;
 
@@ -229,7 +229,7 @@ class Transactions
     }
 
 
-    public function setThisAndPastAsPaid($id_contract_invoice, $paid_amount)
+    public function setThisAndPastAsPaid($id_contract_invoice, $paid_amount, $transaction_id = null)
     {
         global $numeric;
         global $database;
@@ -247,7 +247,7 @@ class Transactions
             }
 
             $database->query("UPDATE contracts_invoices SET status = 3, id_transaction_paid = ?, paid_date = CURRENT_TIMESTAMP WHERE id_contract_invoice IN ($all_invoices_ids)");
-            $database->bind(1, $id_contract_invoice);
+            $database->bind(1, $transaction_id);
             $database->execute();
 
 
@@ -367,24 +367,23 @@ class Transactions
         global $date;
         global $numeric;
         global $contracts;
-        global $contractsInvoices;
-
+        $contractsInvoices = new ContractsInvoices($id_contract_invoice);
         try {
-            if ($contractsInvoices->load($id_contract_invoice)) {
+
+            if ($contractsInvoices->getIdContractInvoice() !== null) {
+
                 $customer = new Accounts($contractsInvoices->getIdCustomer());
-                $contracts->loadById($contractsInvoices->getIdContract());
+                $customerAddress = new AccountsAddress($contractsInvoices->getIdCustomer());
+                $contracts = new Contracts($contractsInvoices->getIdContract());
                 $postback = $this->createPostbackURL($id_contract_invoice);
 
 
                 $object = [
-                    "amount" => $numeric->removeEverythingNotNumber($numeric->cents($contractsInvoices->getTotalToPay())),
+                    "amount" => $numeric->removeEverythingNotNumber($numeric->cents($contractsInvoices->getAmount2Pay())),
                     "payment_method" => "boleto",
                     "async" => false,
                     "boleto_instructions" => $this->instructions,
                     "boleto_expiration_date" => $date->str2date($contractsInvoices->getDueDate()),
-                    "boleto_fine" => $date->str2date($contractsInvoices->getDueDate()),
-                    "boleto_fine[amount]" => $numeric->removeEverythingNotNumber((($contractsInvoices->getAmount() * 0.02) * 100)),
-                    "boleto_interest[amount]" => $numeric->removeEverythingNotNumber((($contractsInvoices->getAmount() * $contracts->getTaxDailyDelay()) * 100)),
                     "postback_url" => $postback,
                     "customer" => [
                         "external_id" => $objects->fastStr($customer->getIdAccount()),
@@ -397,13 +396,44 @@ class Transactions
                                 "number" => $objects->fastStr($customer->getDocument())
                             ]
                         ],
-                        "phone_numbers" => [$objects->fastStr($customer->getPhoneNumber())],
+                        "phone_numbers" => ["+" . $objects->fastStr($customer->getPhoneNumber())],
                         "email" => $objects->fastStr($customer->getEmail())
-                    ]
+                    ],
+                    "billing" => [
+                        "name" => $customer->getFullName(),
+                        "address" => [
+                            "country" => $objects->fastStr($customerAddress->getCountrySingle()),
+                            "street" => $objects->fastStr($customerAddress->getStreet()),
+                            "street_number" => $objects->fastStr($customerAddress->getNumber()),
+                            "state" => $objects->fastStr($customerAddress->getState()),
+                            "city" => $objects->fastStr($customerAddress->getCity()),
+                            "neighborhood" => $objects->fastStr($customerAddress->getNeighborhood()),
+                            "zipcode" => $objects->fastStr($numeric->removeEverythingNotNumber($customerAddress->getZipcode()))
+                        ]
+                    ],
+                    'shipping' => [
+                        'name' => $customer->getFullName(),
+                        'fee' => 0,
+                        'delivery_date' => date("Y-m-d"),
+                        'expedited' => true,
+                        'address' => [
+                            "country" => $objects->fastStr($customerAddress->getCountrySingle()),
+                            "street" => $objects->fastStr($customerAddress->getStreet()),
+                            "street_number" => $objects->fastStr($customerAddress->getNumber()),
+                            "state" => $objects->fastStr($customerAddress->getState()),
+                            "city" => $objects->fastStr($customerAddress->getCity()),
+                            "neighborhood" => $objects->fastStr($customerAddress->getNeighborhood()),
+                            "zipcode" => $objects->fastStr($numeric->removeEverythingNotNumber($customerAddress->getZipcode()))
+                        ]
+                    ],
                 ];
+
                 return $object;
+
             }
+
         } catch (Exception $exception) {
+            echo($exception);
             error_log($exception);
         }
         return null;
@@ -496,8 +526,7 @@ class Transactions
                         ],
                     ]
                 ];
-                print_r($object);
-                echo "<hr>";
+
                 return $object;
             }
         } catch (Exception $exception) {

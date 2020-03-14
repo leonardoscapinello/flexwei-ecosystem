@@ -3,8 +3,15 @@ require_once("../../src/properties/index.php");
 
 $allow = true;
 
+
+// EXTERNAL DOWNLOAD
 if (get_request("f") !== null) {
-    error_log($_GET['f']);
+
+    $file = $text->base64_decode(get_request("f"));
+
+    header("location: " . $file);
+
+// INTERNAL DOWNLOAD
 } elseif (get_request("file")) {
 
     $filename = get_request("file");

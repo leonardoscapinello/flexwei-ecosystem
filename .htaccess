@@ -8,7 +8,7 @@ RewriteRule ^logout$                src/session/account.php?action=logout [L,NC,
 RewriteRule ^login/redirect$        src/session/redirect.php [L,NC,QSA]
 
 RewriteRule ^job/invoices/update$                               src/modules/external/update-invoices.php [L,NC,QSA]
-RewriteRule ^job/invoices/generateall$                             src/modules/external/generate-invoices.php [L,NC,QSA]
+RewriteRule ^job/invoices/generateall$                          src/modules/external/generate-invoices.php [L,NC,QSA]
 RewriteRule ^job/invoices/renderall$                            src/modules/external/render-all-invoices.php [L,NC,QSA]
 
 RewriteRule ^p/update/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$        src/modules/external/postback.php?ik=$1&id=$2 [L,NC,QSA]
