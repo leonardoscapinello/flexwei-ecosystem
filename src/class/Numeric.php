@@ -9,9 +9,14 @@ class Numeric
     public function is_number($number)
     {
         if (preg_match('/^[0-9,.]+$/', $number)) {
-                return true;
+            return true;
         }
         return false;
+    }
+
+    public function cents($number)
+    {
+        return $number * 100;
     }
 
     public function money($number)

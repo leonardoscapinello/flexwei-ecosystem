@@ -35,13 +35,14 @@ class Contracts
         return array();
     }
 
-    public function load($document_key)
+    public function __construct($document_key = 0)
     {
         global $database;
         global $text;
         if (not_empty($document_key)) {
-            $database->query("SELECT * FROM contracts WHERE document_key = ?");
+            $database->query("SELECT * FROM contracts WHERE (document_key = ? OR id_contract = ?)");
             $database->bind(1, $document_key);
+            $database->bind(2, $document_key);
             $result = $database->resultsetObject();
             if ($result && count(get_object_vars($result)) > 0) {
                 foreach ($result as $key => $value) {
@@ -53,21 +54,6 @@ class Contracts
         return false;
     }
 
-    public function loadById($id_contract)
-    {
-        global $database;
-        global $text;
-        if (not_empty($id_contract)) {
-            $database->query("SELECT * FROM contracts WHERE id_contract = ?");
-            $database->bind(1, $id_contract);
-            $result = $database->resultsetObject();
-            if ($result && count(get_object_vars($result)) > 0) {
-                foreach ($result as $key => $value) {
-                    $this->$key = $text->utf8($value);
-                }
-            }
-        }
-    }
 
     public function getNextClosureDate()
     {
@@ -76,6 +62,7 @@ class Contracts
         $date_closure = date("Y-m-") . $payday;
         return $date->subtractDateBusinessDay($date_closure, 5);
     }
+
 
     public function getNextPayDay()
     {

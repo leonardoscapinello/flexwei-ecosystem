@@ -1,15 +1,21 @@
 <?php
+
+
+$contractsInvoices = new ContractsInvoices();
+$contractsServices = new ContractsServices();
+
 if (!$contractsInvoices->loadByURLToken($url_token)) {
     die;
 }
 $id_customer = $contractsInvoices->getIdCustomer();
-$contracts->loadById($contractsInvoices->getIdContract());
+$contracts = new Contracts($contractsInvoices->getIdContract());
 $customer = new Accounts($id_customer);
 $paid_amount = $transactions->getTotalPaid($contractsInvoices->getIdContractInvoice());
 
-$pastdebits = $contractsInvoices->getSumTotalPastDebits();
+$pastdebits = $contractsInvoices->getPastDebitsAmount();
+$taxbydue = $contractsInvoices->getTaxAmount();
 $thisamount = $contractsInvoices->getAmount();
-$total2pay = (($pastdebits + $thisamount) - $paid_amount);
+$total2pay = (($pastdebits + $thisamount + $taxbydue) - $paid_amount);
 
 ?>
 <html>
@@ -18,7 +24,8 @@ $total2pay = (($pastdebits + $thisamount) - $paid_amount);
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Flexwei: Sua fatura de <?= $text->lowercase($date->getMonthNameFromDate($contractsInvoices->getDueDate())) ?> chegou.</title>
+    <title>Flexwei: Sua fatura de <?= $text->lowercase($date->getMonthNameFromDate($contractsInvoices->getDueDate())) ?>
+        chegou.</title>
     <link href="../../../public/stylesheet/invoice-print.css?v=<?= date("dmHis") ?>"
           rel="stylesheet" type="text/css">
     <link href="../../../public/fonts/gilroy/Gilroy.css" rel="stylesheet">
@@ -87,8 +94,8 @@ $total2pay = (($pastdebits + $thisamount) - $paid_amount);
                     <div class="f2"><?= $numeric->money($pastdebits) ?></div>
                 </div>
                 <div class="line" style="height: 14">
-                    <div class="f1">Descontos</div>
-                    <div class="f2"><?= $numeric->money(0) ?></div>
+                    <div class="f1">Cobranças por atraso</div>
+                    <div class="f2"><?= $numeric->money($taxbydue) ?></div>
                 </div>
                 <div class="line" style="height: 14">
                     <div class="f1">Fatura atual</div>
@@ -131,7 +138,7 @@ $total2pay = (($pastdebits + $thisamount) - $paid_amount);
     <div class="footer">
         <div class="footer-customer">
             <p><b>FLEXWEI DIGITAL</b></p>
-            <p>36.320.921-9/0001-83</p>
+            <p>31.828.341/0001-83</p>
             <p>Parque São Vicente, Mauá</p>
             <p>São Paulo - Brasil</p>
         </div>
@@ -142,6 +149,72 @@ $total2pay = (($pastdebits + $thisamount) - $paid_amount);
     </div>
     <div style="clear: both"></div>
 </div>
+
+<?php if ($contractsInvoices->isPaidInFutureInvoice()) { ?>
+    <div class="page">
+        <div class="header">
+            <div class="header-image">
+                <img src="../../../public/images/invoices/invoice-header-smallest.png">
+            </div>
+            <div class="header-customer" style="margin-right: 115">
+                <p><?= $customer->getFullName() ?><span
+                            style="font-weight:300;margin-left:3px;"><?= $customer->getDocument() ?></span></p>
+                <p>FATURA <span><?= $contractsInvoices->getSmallDueDate() ?></span> EMISSÃO
+                    <span><?= $contractsInvoices->getSmallInsertTime() ?></span></p>
+            </div>
+        </div>
+        <div class="section-resume">
+            <div class="resume-table-header">
+                <div class="header-resume">
+                    <p style="position:relative; top: 5">COMPROVANTE DE PAGAMENTO PÓS-VENCIMENTO</p>
+                </div>
+            </div>
+            <div class="resume-table-content">
+                <div class="inside-terms">
+                    <p><b>Departamento Financeiro e Juridico FLEXWEI DIGITAL (FLEXWEI FINANCE) &agrave; <?= $customer->getFullName() ?>.</b></p>
+                    <p>A LEONARDO DIAS SCAPINELLO 40129382825 portador do CNPJ 31.828.341/0001-83 e devidamente
+                        certificada com "Alvará de Licença e Funcionamento", habilitada a atuar com nome de FLEXWEI
+                        DIGITAL, declara:
+
+                    <p>Para fins legais e de comprovação, certificamos o recebimento dos valores expostos neste
+                        documento e também os encargos ocorridos por atraso (as cobranças adicionais por atraso
+                        encontram-se calculados e dispostos de forma clara no próximo documento com vencimento no
+                        próximo período de contrato).</p>
+
+                    <p>O recebimento dos valores ocorreu no
+                        dia <?= $date->formatDate($contractsInvoices->getPaidDate()) ?>, considerando o dia de
+                        vencimento declarado em contrato para o dia <?= $contracts->getPayDay() ?> de cada mês ou
+                        próximo dia útil</p>
+
+                    <p>
+                        Dessa forma, da-se quitação ao débito referente ao mês
+                        mês <?= $text->lowercase($date->getMonthNameFromDate($contractsInvoices->getDueDate())) ?>
+                        de <?= date("Y", strtotime($contractsInvoices->getDueDate())) ?> e também não haverá cobranças
+                        futuras referentes a esta folha especificamente.
+                    </p>
+
+                    <p>Flexwei Finance,</p>
+
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="footer-customer">
+                <p><b>FLEXWEI DIGITAL</b></p>
+                <p>31.828.341/0001-83</p>
+                <p>Parque São Vicente, Mauá</p>
+                <p>São Paulo - Brasil</p>
+            </div>
+            <div class="footer-customer right">
+                <p>Encargos e Custo Efetivo Total (CET) válidos para o próximo período.</p>
+                <p>Autorização.Flexwei: <?= substr($url_token, 0, 32) ?></p>
+            </div>
+        </div>
+        <div style="clear: both"></div>
+    </div>
+<?php } ?>
+
+
 <?php
 $services = $contractsServices->getServiceListByDocumentKey($contracts->getDocumentKey());
 for ($x = 0; $x < count($services); $x++) {
@@ -192,7 +265,7 @@ for ($x = 0; $x < count($services); $x++) {
         <div class="footer">
             <div class="footer-customer">
                 <p><b>FLEXWEI DIGITAL</b></p>
-                <p>36.320.921-9/0001-83</p>
+                <p>31.828.341/0001-83</p>
                 <p>Parque São Vicente, Mauá</p>
                 <p>São Paulo - Brasil</p>
             </div>
@@ -203,4 +276,5 @@ for ($x = 0; $x < count($services); $x++) {
         </div>
     </div>
 <?php } ?>
-</body></html>
+</body>
+</html>

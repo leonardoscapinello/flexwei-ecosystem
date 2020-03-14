@@ -4,7 +4,7 @@ $url_token = get_request("url_token");
 $filename = get_request("filename");
 ob_start();
 
-if ($url_token !== null && $filename !== null) {
+if ($url_token !== null || ($url_token !== null && $filename !== null && get_request("disableRender") !== "Y")) {
 
     require_once("view-invoice.php");
 

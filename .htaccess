@@ -7,13 +7,17 @@ RewriteRule ^login$                 src/session/account.php?action=login [L,NC,Q
 RewriteRule ^logout$                src/session/account.php?action=logout [L,NC,QSA]
 RewriteRule ^login/redirect$        src/session/redirect.php [L,NC,QSA]
 
-RewriteRule ^p/update/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$               src/modules/external/update-invoice.php?ik=$1&id=$2 [L,NC,QSA]
+RewriteRule ^job/invoices/update$                               src/modules/external/update-invoices.php [L,NC,QSA]
+RewriteRule ^job/invoices/generateall$                             src/modules/external/generate-invoices.php [L,NC,QSA]
+RewriteRule ^job/invoices/renderall$                            src/modules/external/render-all-invoices.php [L,NC,QSA]
 
+RewriteRule ^p/update/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$        src/modules/external/postback.php?ik=$1&id=$2 [L,NC,QSA]
+
+RewriteRule ^download/external$                                 public/documents/force-download.php [L,NC,QSA]
 RewriteRule ^download/documents/([a-zA-Z0-9_-]+)$               public/documents/force-download.php?file=$1.pdf [L,NC,QSA]
 RewriteRule ^e/([a-zA-Z0-9_-]+)$                                src/modules/external/$1.php [L,NC,QSA]
 RewriteRule ^e/i/view/([a-zA-Z0-9_-]+)$                         src/modules/external/render-invoice.php?disableRender=Y&url_token=$1 [L,NC,QSA]
 RewriteRule ^e/i/render/([a-zA-Z0-9_-]+)$                       src/modules/external/render-invoice.php?url_token=$1 [L,NC,QSA]
-RewriteRule ^e/i/rai$                                           src/modules/external/render-all-invoices.php [L,NC,QSA]
 
 
 RewriteRule ^d/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$               index.php?mdurl=$1&prm1=$2 [L,NC,QSA]

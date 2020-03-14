@@ -38,7 +38,9 @@ require_once(DIRNAME . "/../class/Security.php");
 require_once(DIRNAME . "/../class/Contracts.php");
 require_once(DIRNAME . "/../class/ContractsServices.php");
 require_once(DIRNAME . "/../class/ContractsInvoices.php");
+require_once(DIRNAME . "/../class/ContractsInvoicesUpdate.php");
 require_once(DIRNAME . "/../class/Transactions.php");
+require_once(DIRNAME . "/../class/TransactionsHistory.php");
 require_once(DIRNAME . "/../class/CreditCard.php");
 
 
@@ -55,9 +57,6 @@ $address = new AccountsAddress();
 $accountsCards = new AccountsCards();
 $token = new Token();
 $security = new Security();
-$contracts = new Contracts();
-$contractsServices = new ContractsServices();
-$contractsInvoices = new ContractsInvoices();
 $date = new Date();
 $transactions = new Transactions();
 $pagarme = new PagarMe\Client(PAGARME_API_KEY);
@@ -65,6 +64,8 @@ $less = new lessc();
 $properties = new Properties();
 $stylesheet = new StyleSheetCompiler($properties->getDevelopment());
 $creditCard = new CreditCard();
+$transactions = new Transactions();
+$transactionsHistory = new TransactionsHistory();
 
 
 $less->compileFile(DIRNAME . "../../public/less/stylesheet.less", DIRNAME . "../../public/stylesheet/stylesheet.css");

@@ -1,10 +1,13 @@
 <?php
 $invoice = get_request("iv");
 $invoice = $text->base64_decode($invoice);
-if (!$contractsInvoices->load($invoice)) die;
-$contracts->loadById($contractsInvoices->getIdContract());
 
-if($contracts->getIdCustomer() !== $account->getIdAccount()){
+$contractsInvoices = new ContractsInvoices($invoice);
+
+
+$contracts = new Contracts($contractsInvoices->getIdContract());
+
+if ($contracts->getIdCustomer() !== $account->getIdAccount()) {
     die("Você não pode visualizar elementos de outros usuários");
 }
 
@@ -72,7 +75,7 @@ if($contracts->getIdCustomer() !== $account->getIdAccount()){
                             </div>
                             <div class="col-xl-6 col-lg-6 col-sm-12">
                                 <div class="input-group">
-                                    <label for="">Valor para Pagamento</label>
+                                    <label for="">Fatura atual</label>
                                     <input type="text" disabled readonly
                                            value="R$ <?= $numeric->money($contractsInvoices->getAmount()) ?>"/>
                                 </div>
@@ -83,14 +86,30 @@ if($contracts->getIdCustomer() !== $account->getIdAccount()){
                                 <div class="input-group">
                                     <label for="">Débitos Anteriores</label>
                                     <input type="text" disabled readonly
-                                           value="R$ <?= $numeric->money($contractsInvoices->getSumTotalPastDebits()) ?>"/>
+                                           value="R$ <?= $numeric->money($contractsInvoices->getPastDebitsAmount()) ?>"/>
                                 </div>
                             </div>
                             <div class="col-xl-6 col-lg-6 col-sm-12">
                                 <div class="input-group">
-                                    <label for="">Status da Cobrança</label>
+                                    <label for="">Pagamentos Recebidos</label>
                                     <input type="text" disabled readonly
                                            value="R$ <?= $numeric->money($transactions->getPaidAmountForInvoice($invoice)) ?>"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-sm-12">
+                                <div class="input-group">
+                                    <label for="">Cobranças por atraso</label>
+                                    <input type="text" disabled readonly
+                                           value="R$ <?= $numeric->money($contractsInvoices->getTaxAmount()) ?>"/>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-sm-12">
+                                <div class="input-group">
+                                    <label for="">Valor final para pagamento</label>
+                                    <input type="text" disabled readonly
+                                           value="R$ <?= $numeric->money($contractsInvoices->getAmount2Pay()) ?>"/>
                                 </div>
                             </div>
                         </div>

@@ -3,20 +3,19 @@
 class ContractsServices
 {
 
-    private $id_contract_charge;
+    private $id_contract_service;
     private $id_contract;
     private $id_account;
     private $id_service;
     private $total_amount;
     private $unitary_price;
     private $hired_hours;
-    private $service_name;
     private $service_title;
     private $service_description;
     private $is_active;
     private $insert_time;
 
-    public function load($id_contract_service)
+    public function __construct($id_contract_service = 0)
     {
         global $database;
         global $text;
@@ -33,44 +32,12 @@ class ContractsServices
         }
     }
 
-    public function getServiceListByDocumentKey($document_key)
-    {
-        global $database;
-        global $text;
-        if (not_empty($document_key)) {
-            $database->query("SELECT * FROM contracts_services cs LEFT JOIN services sv ON sv.id_service = cs.id_service WHERE cs.id_contract IN (SELECT id_contract FROM contracts WHERE document_key = ?)");
-            $database->bind(1, $document_key);
-            $result = $database->resultset();
-            if (count($result) > 0) {
-                return $result;
-            }
-        }
-        return array();
-    }
-
-    public function getList($document_key)
-    {
-        global $database;
-        $database->query("SELECT sv.id_service, sv.service_name, cs.total_amount, cs.hired_hours, cs.unitary_price, cs.service_title, cs.service_description, cs.is_active, cs.insert_time FROM contracts_services cs LEFT JOIN services sv ON sv.id_service = cs.id_service WHERE id_contract = (SELECT id_contract FROM contracts WHERE document_key = ?)");
-        $database->bind(1, $document_key);
-        $resultset = $database->resultset();
-        if (count($resultset) > 0) {
-            return $resultset;
-        }
-        return array();
-    }
-
-    public function paymentMethod()
-    {
-        return "Parcelado";
-    }
-
     /**
      * @return mixed
      */
-    public function getIdContractCharge()
+    public function getIdContractService()
     {
-        return $this->id_contract_charge;
+        return $this->id_contract_service;
     }
 
     /**
@@ -118,7 +85,7 @@ class ContractsServices
      */
     public function getHiredHours()
     {
-        return $this->hired_hours * 60;
+        return $this->hired_hours;
     }
 
     /**
@@ -137,7 +104,6 @@ class ContractsServices
         return $this->service_description;
     }
 
-
     /**
      * @return mixed
      */
@@ -152,6 +118,33 @@ class ContractsServices
     public function getInsertTime()
     {
         return $this->insert_time;
+    }
+
+    public function getList($document_key)
+    {
+        global $database;
+        $database->query("SELECT sv.id_service, sv.service_name, cs.total_amount, cs.hired_hours, cs.unitary_price, cs.service_title, cs.service_description, cs.is_active, cs.insert_time FROM contracts_services cs LEFT JOIN services sv ON sv.id_service = cs.id_service WHERE id_contract = (SELECT id_contract FROM contracts WHERE document_key = ?) AND is_active = 'Y'");
+        $database->bind(1, $document_key);
+        $resultset = $database->resultset();
+        if (count($resultset) > 0) {
+            return $resultset;
+        }
+        return array();
+    }
+
+    public function getServiceListByDocumentKey($document_key)
+    {
+        global $database;
+        global $text;
+        if (not_empty($document_key)) {
+            $database->query("SELECT * FROM contracts_services cs LEFT JOIN services sv ON sv.id_service = cs.id_service WHERE cs.id_contract IN (SELECT id_contract FROM contracts WHERE document_key = ?)  AND is_active = 'Y'");
+            $database->bind(1, $document_key);
+            $result = $database->resultset();
+            if (count($result) > 0) {
+                return $result;
+            }
+        }
+        return array();
     }
 
 

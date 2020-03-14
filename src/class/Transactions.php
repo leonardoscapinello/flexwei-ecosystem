@@ -42,6 +42,29 @@ class Transactions
     private $instructions = "Após o vencimento cobrar muta de 2% e juros de 1% ao mês";
 
 
+    public function load($id_transaction)
+    {
+        global $database;
+        global $text;
+        try {
+            if (not_empty($id_transaction)) {
+                $database->query("SELECT * FROM transactions WHERE id_transaction = ?");
+                $database->bind(1, $id_transaction);
+                $result = $database->resultsetObject();
+                if ($result && count(get_object_vars($result)) > 0) {
+                    foreach ($result as $key => $value) {
+                        $this->$key = $text->utf8($value);
+                    }
+                    return true;
+                }
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return false;
+    }
+
+
     /* REGISTER ON PAGAR.ME */
 
 
@@ -56,11 +79,29 @@ class Transactions
             }
             if ($object !== null) {
                 $result = $pagarme->transactions()->create($object);
-                $this->store($id_contract_invoice, $result);
-                return true;
+                return $this->store($id_contract_invoice, $result);
             }
         } catch (Exception $exception) {
-            echo $exception;
+            error_log($exception);
+        }
+        return false;
+    }
+
+
+    public function update($id_contract_invoice, $credit_card = false)
+    {
+        global $pagarme;
+        try {
+            if ($credit_card) {
+                $object = $this->createCreditCardObject($id_contract_invoice, $credit_card);
+            } else {
+                $object = $this->createBilletObject($id_contract_invoice);
+            }
+            if ($object !== null) {
+                $result = $pagarme->transactions()->create($object);
+                return $this->store($id_contract_invoice, $result);
+            }
+        } catch (Exception $exception) {
             error_log($exception);
         }
         return false;
@@ -104,7 +145,6 @@ class Transactions
         global $numeric;
         global $date;
         global $token;
-        global $contractsInvoices;
         try {
             if ($transaction_result !== null && $transaction_result !== "") {
 
@@ -173,38 +213,73 @@ class Transactions
                 $database->bind(29, "N");
                 $database->execute();
 
+                $last_id = $database->lastInsertId();
 
-                $this->updateStatusForPaid($id_contract_invoice);
+
+                $this->setThisAndPastAsPaid($id_contract_invoice, $paid_amount);
+
+                return $last_id;
 
             }
         } catch (Exception $exception) {
             echo($exception);
             error_log($exception);
         }
+        return 0;
     }
 
 
-    public function updateStatusForPaid($id_contract_invoice)
+    public function setThisAndPastAsPaid($id_contract_invoice, $paid_amount)
     {
         global $numeric;
         global $database;
         try {
-            if ($numeric->isIdentity($id_contract_invoice)) {
-                $loadedInvoice = new ContractsInvoices($id_contract_invoice);
-                $paid_amount = $this->getTotalPaid($id_contract_invoice);
-                $total2pay = ($loadedInvoice->getSumTotalPastDebits() + $loadedInvoice->getAmount()) - $paid_amount;
-                if (intval($total2pay) === 0) {
-                    $status = 3;
-                } elseif ($total2pay > 0 && $paid_amount > 0) {
-                    $status = 4;
-                } else {
-                    $status = 2;
-                }
 
-                $database->query("UPDATE contracts_invoices SET status = ? WHERE id_contract_invoice = ?");
+            $all_invoices_ids = $id_contract_invoice;
+
+            $contractsInvoices = new ContractsInvoices($id_contract_invoice);
+            // SE O VALOR DO PAGAMENTO CONDIZ COM O VALOR TOTAL (ATUAL + PASSADO)
+            if ($paid_amount == $contractsInvoices->getAmountSumPast()) {
+                $invoices = $contractsInvoices->getPastInvoices();
+                for ($i = 0; $i < count($invoices); $i++) {
+                    $all_invoices_ids .= "," . $invoices[$i]['id_contract_invoice'];
+                }
+            }
+
+            $database->query("UPDATE contracts_invoices SET status = 3, id_transaction_paid = ?, paid_date = CURRENT_TIMESTAMP WHERE id_contract_invoice IN ($all_invoices_ids)");
+            $database->bind(1, $id_contract_invoice);
+            $database->execute();
+
+
+        } catch (Exception $exception) {
+            echo $exception;
+            error_log($exception);
+        }
+        return false;
+    }
+
+    public function updateStatus($id_transaction, $status, $transactionObj)
+    {
+        global $numeric;
+        global $database;
+        global $transactionsHistory;
+        try {
+            if ($numeric->isIdentity($id_transaction)) {
+
+                $transactionsHistory->execute($id_transaction);
+                $response_data = json_encode($transactionObj, true);
+
+                $is_paid = "N";
+                if ("paid" === $status) $is_paid = "Y";
+
+                $database->query("UPDATE transactions SET status = ?, is_paid = ?, response_data = ? WHERE (id_transaction = ? OR id_transaction_external = ?)");
                 $database->bind(1, $status);
-                $database->bind(2, $id_contract_invoice);
+                $database->bind(2, $is_paid);
+                $database->bind(3, $response_data);
+                $database->bind(4, $id_transaction);
+                $database->bind(5, $id_transaction);
                 $database->execute();
+
 
             }
         } catch (Exception $exception) {
@@ -212,6 +287,30 @@ class Transactions
             error_log($exception);
         }
         return false;
+    }
+
+
+    public function getAllBilletsOfInvoice($id_contract_invoice = 0)
+    {
+        global $database;
+        global $numeric;
+        try {
+            if (!$id_contract_invoice || intval($id_contract_invoice) === 0) $id_contract_invoice = $this->getIdContractInvoice();
+
+
+            if ($numeric->isIdentity($id_contract_invoice)) {
+                $database->query("SELECT id_transaction, expire_date, document_url, barcode, invoice_amount FROM transactions WHERE payment_method = 'boleto' AND document_url IS NOT NULL AND (NOW() < DATE_ADD(expire_date, INTERVAL 1 DAY)) AND id_contract_invoice = ?");
+                $database->bind(1, $id_contract_invoice);
+                $resultset = $database->resultset();
+                if (count($resultset) > 0) {
+                    return $resultset;
+                }
+            }
+        } catch (Exception $exception) {
+            echo $exception;
+            error_log($exception);
+        }
+        return array();
     }
 
 
@@ -278,7 +377,7 @@ class Transactions
 
 
                 $object = [
-                    "amount" => $numeric->removeEverythingNotNumber($contractsInvoices->getTotalToPay()),
+                    "amount" => $numeric->removeEverythingNotNumber($numeric->cents($contractsInvoices->getTotalToPay())),
                     "payment_method" => "boleto",
                     "async" => false,
                     "boleto_instructions" => $this->instructions,
@@ -317,15 +416,19 @@ class Transactions
         global $date;
         global $numeric;
         global $contracts;
-        global $contractsInvoices;
         global $security;
 
         try {
-            if ($contractsInvoices->load($id_contract_invoice)) {
+
+            $contractsInvoices = new ContractsInvoices($id_contract_invoice);
+
+            if ($contractsInvoices->getIdContractInvoice() !== null) {
 
                 $customer = new Accounts($contractsInvoices->getIdCustomer());
                 $customerAddress = new AccountsAddress($contractsInvoices->getIdCustomer());
-                $contracts->loadById($contractsInvoices->getIdContract());
+
+                $contracts = new Contracts($contractsInvoices->getIdContract());
+
                 $postback = $this->createPostbackURL($id_contract_invoice);
                 $security->setIdAccount($contractsInvoices->getIdCustomer());
 
@@ -336,7 +439,7 @@ class Transactions
 
 
                 $object = [
-                    "amount" => $numeric->removeEverythingNotNumber($contractsInvoices->getTotalToPay()),
+                    "amount" => $numeric->removeEverythingNotNumber($numeric->cents($contractsInvoices->getAmount2Pay())),
                     "payment_method" => "credit_card",
                     "async" => false,
                     "card_id" => $id_card,
@@ -673,9 +776,9 @@ class Transactions
     /**
      * @return mixed
      */
-    public function getIsPaid()
+    public function isPaid()
     {
-        return $this->is_paid;
+        return $this->is_paid === "Y" ? true : false;
     }
 
     /**

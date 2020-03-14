@@ -5,114 +5,29 @@ class ContractsInvoices
 
     private $id_contract_invoice;
     private $id_contract;
-    private $id_customer;
     private $id_account;
+    private $id_customer;
+    private $id_transaction_paid;
+    private $url_token;
     private $invoice_key;
     private $installment_number;
     private $amount;
+    private $status;
     private $due_date;
+    private $paid_date;
     private $insert_time;
     private $is_active;
-    private $status;
+    private $is_rendered;
 
-    public function __construct($id_contract_invoice = 0)
-    {
-        $this->load($id_contract_invoice);
-    }
-
-    private function createDueDate($id_contract, $installment_number)
-    {
-        global $contracts;
-        global $date;
-        try {
-            $contracts->loadById($id_contract);
-            $date->setCustomDateFormat("Y-m-d");
-            $payday = $contracts->getPayday();
-            $now = date("Y-m-d H:i:s");
-            $payday_fulldate = date("Y-m-$payday H:i:s");
-            $difference = $date->getDaysOfDifference($now, $payday_fulldate);
-
-            $months2add = ($installment_number - 1);
-
-            if ($difference < 7) {
-                // DIFFERENCE BIGGER THAN 7 DAYS, START INVOICE TO THIS MONTH
-                $months2add = 1 + $installment_number;
-            }
-
-            $due_date = $date->sumDateMonths($payday_fulldate, $months2add);
-            $due_date = $date->getNextBusinessDay($due_date);
-
-
-            return $due_date;
-        } catch (Exception $exception) {
-            error_log($exception);
-        }
-    }
-
-    private function createInvoiceKey()
-    {
-        global $token;
-        global $text;
-        return $text->uppercase($text->removeSpace("FW" . $token->tokenNumeric(8) . "-" . $token->tokenNumeric(2)));
-    }
-
-    private function createUniqueKey()
-    {
-        global $token;
-        global $text;
-        global $numeric;
-        $day = date("d");
-        $month = date("m");
-        $year = date("Y");
-        $hour = date("H");
-        $minute = date("i");
-        $second = date("s");
-        $key = $token->tokenAlphanumeric(40);
-        $key .= $day . $month;
-        $key .= $token->tokenAlphanumeric(40);
-        $key .= $year;
-        $key .= $token->tokenAlphanumeric(40);
-        $key .= $hour;
-        $key .= $token->tokenAlphanumeric(40);
-        $key .= $minute;
-        $key .= $token->tokenAlphanumeric(40);
-        $key .= $second;
-        $key .= $token->tokenAlphanumeric(41);
-        return $text->uppercase($key);
-    }
-
-    private function installmentExists($id_contract, $installment_number)
-    {
-        global $database;
-        try {
-            $database->query("SELECT id_contract FROM contracts_invoices WHERE id_contract = ? AND installment_number = ? AND is_active = 'Y'");
-            $database->bind(1, $id_contract);
-            $database->bind(2, $installment_number);
-            $result = $database->resultset();
-            if (count($result) > 0) return true;
-        } catch (Exception $exception) {
-            error_log($exception);
-        }
-        return false;
-    }
-
-
-    public function invoiceDocumentAlreadyRendered($invoice_key)
-    {
-        $file = DIRNAME . "../public/documents/" . $invoice_key . ".pdf";
-        return file_exists($file);
-    }
-
-
-    public function load($id_contract_invoice)
+    public function __construct($id_contract_invoice_or_key = 0)
     {
         global $database;
         global $text;
         global $numeric;
         try {
-            if (not_empty($id_contract_invoice)) {
-                $database->query("SELECT * FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE (ci.id_contract_invoice = :invoice OR MD5(ci.id_contract_invoice) = :invoice) OR ci.invoice_key = :invoice");
-                $database->bind(":invoice", $id_contract_invoice);
+            if (not_empty($id_contract_invoice_or_key)) {
+                $database->query("SELECT * FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE (ci.id_contract_invoice = :invoice) OR ci.invoice_key = :invoice OR url_token = :invoice");
+                $database->bind(":invoice", $id_contract_invoice_or_key);
                 $result = $database->resultsetObject();
                 if ($result && count(get_object_vars($result)) > 0) {
                     foreach ($result as $key => $value) {
@@ -127,12 +42,13 @@ class ContractsInvoices
         return false;
     }
 
+
     public function loadByURLToken($url_token)
     {
         global $database;
         global $text;
         if (not_empty($url_token)) {
-            $database->query("SELECT ci.id_contract_invoice, ci.id_contract, ci.id_account, ci.invoice_key, ci.installment_number, ci.amount, ci.due_date, ci.insert_time, ci.is_active, ct.id_customer, ct.installments, ct.payday, ct.document_key FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE url_token = ?");
+            $database->query("SELECT ci.id_contract_invoice, ci.id_contract, ci.id_account, ci.invoice_key, ci.installment_number, ci.amount, ci.due_date, ci.insert_time, ci.is_active, ct.id_customer, ct.installments, ct.payday, ct.document_key, ci.id_transaction_paid, ci.paid_date FROM contracts_invoices ci LEFT JOIN contracts ct ON ct.id_contract = ci.id_contract WHERE url_token = ?");
             $database->bind(1, $url_token);
             $result = $database->resultsetObject();
             if ($result && count(get_object_vars($result)) > 0) {
@@ -143,145 +59,6 @@ class ContractsInvoices
             }
         }
         return false;
-    }
-
-    public function getInvoicePastDebits($id_contract_invoice = 0)
-    {
-        global $database;
-        try {
-            if (!$id_contract_invoice || intval($id_contract_invoice) === 0) $id_contract_invoice = $this->getIdContractInvoice();
-            $database->query("SELECT ci.id_contract_invoice, ci.invoice_key, ci.due_date, ci.amount, IFNULL(tr.paid_amount, 0) AS invoice_paid, (ci.amount - IFNULL(tr.paid_amount, 0)) AS debits FROM contracts_invoices ci LEFT JOIN (SELECT id_contract_invoice, IFNULL(SUM(paid_amount), 0) paid_amount FROM transactions) tr ON tr.id_contract_invoice = ci.id_contract_invoice WHERE ci.id_contract = (SELECT id_contract FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.due_date < (SELECT due_date FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.is_active = 'Y' AND (ci.amount - IFNULL(tr.paid_amount, 0)) > 0");
-            $database->bind(1, $id_contract_invoice);
-            $database->bind(2, $id_contract_invoice);
-            $result = $database->resultset();
-            if (count($result) > 0) {
-                return $result;
-            }
-        } catch (Exception $exception) {
-
-        }
-    }
-
-    public function getSumTotalPastDebits($id_contract_invoice = 0)
-    {
-        global $database;
-        try {
-            if (!$id_contract_invoice || intval($id_contract_invoice) === 0) $id_contract_invoice = $this->getIdContractInvoice();
-            $database->query("SELECT SUM(ci.amount - IFNULL(tr.paid_amount, 0)) AS debits FROM contracts_invoices ci LEFT JOIN (SELECT id_contract_invoice, IFNULL(SUM(paid_amount), 0) paid_amount FROM transactions) tr ON tr.id_contract_invoice = ci.id_contract_invoice WHERE ci.id_contract = (SELECT id_contract FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.due_date < (SELECT due_date FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.is_active = 'Y' AND (ci.amount - IFNULL(tr.paid_amount, 0)) > 0");
-            $database->bind(1, $id_contract_invoice);
-            $database->bind(2, $id_contract_invoice);
-            $result = $database->resultset();
-            if (count($result) > 0) {
-                return $result[0]['debits'];
-            }
-        } catch (Exception $exception) {
-            error_log($exception);
-        }
-        return 0;
-    }
-
-
-    public function getAllContractsHasNotCreatedAllInvoicesAndDo()
-    {
-        global $database;
-        global $contracts;
-        global $contractsServices;
-        try {
-
-            $database->query("SELECT ct.installments, IFNULL(ci.rendered_invoices, 0) rendered_invoices, ct.document_key FROM contracts ct LEFT JOIN (SELECT COUNT(id_contract_invoice) rendered_invoices, id_contract FROM contracts_invoices  GROUP BY id_contract) ci ON ci.id_contract = ct.id_contract WHERE created_invoices = 'N'");
-            $resultSet = $database->resultset();
-            if (count($resultSet) > 0) {
-                for ($i = 0; $i < count($resultSet); $i++) {
-                    $document_key = $resultSet[$i]['document_key'];
-                    $installments = $resultSet[$i]['installments'];
-                    $rendered_invoices = $resultSet[$i]['rendered_invoices'];
-                    if (intval($rendered_invoices) >= intval($installments)) {
-                        $this->setContractInvoicesCreated($document_key, true);
-                    } else {
-                        $this->massiveRegister($document_key);
-                    }
-                }
-            }
-
-        } catch (Exception $exception) {
-            echo $exception;
-            error_log($exception);
-        }
-    }
-
-
-    private function massiveRegister($document_key)
-    {
-        global $database;
-        global $contracts;
-        global $contractsServices;
-        try {
-            if ($contracts->load($document_key)) {
-
-                $id_contract = $contracts->getIdContract();
-                $id_account = $contracts->getIdAccount();
-                $installments = $contracts->getInstallments();
-                $is_recurrent = $contracts->isRecurrent();
-
-                $services = $contractsServices->getServiceListByDocumentKey($document_key);
-
-                $total_amount = 0;
-                for ($i = 0; $i < count($services); $i++) {
-                    $amount = intval($services[$i]['total_amount']);
-                    $total_amount = ($total_amount + $amount);
-                }
-
-                if ($total_amount > 0) {
-
-                    for ($i = 1; $i <= $installments; $i++) {
-                        $invoice_key = $this->createInvoiceKey();
-                        $url_token = $this->createUniqueKey();
-                        $installment_number = $i;
-                        if (!$this->installmentExists($id_contract, $installment_number)) {
-                            $partial_amount = (intval($total_amount) / intval($installments));
-                            $due_date = $this->createDueDate($id_contract, $installment_number);
-                            $database->query("INSERT INTO contracts_invoices (id_contract, id_account, invoice_key, installment_number, amount, due_date, url_token) VALUES (?,?,?,?,?,?,?)");
-                            $database->bind(1, $id_contract);
-                            $database->bind(2, $id_account);
-                            $database->bind(3, $invoice_key);
-                            $database->bind(4, $installment_number);
-                            $database->bind(5, $partial_amount);
-                            $database->bind(6, $due_date);
-                            $database->bind(7, $url_token);
-                            $database->execute();
-                        }
-                    }
-                }
-
-
-            }
-
-        } catch (Exception $exception) {
-            error_log($exception);
-        }
-    }
-
-    private function setContractInvoicesCreated($document_key, $boolean = true)
-    {
-        global $database;
-        try {
-            $database->query("UPDATE contracts SET created_invoices = ? WHERE document_key = ?");
-            $resultset = $database->resultset();
-            if (count($resultset) > 0) {
-                for ($i = 0; $i < count($resultset); $i++) {
-                    $document_key = $resultset[$i]['document_key'];
-                    $installments = $resultset[$i]['installments'];
-                    $rendered_invoices = $resultset[$i]['rendered_invoices'];
-                    if (intval($installments) >= intval($rendered_invoices)) {
-                        $this->setContractInvoicesCreated($document_key, true);
-                    } else {
-                        $this->massiveRegister($document_key);
-                    }
-                }
-            }
-        } catch (Exception $exception) {
-            error_log($exception);
-        }
     }
 
     public function getThisMonthInvoice($id_contract = 0)
@@ -303,7 +80,7 @@ class ContractsInvoices
         return array();
     }
 
-    public function getAllPastInvoices($id_contract = 0)
+    private function getAllPastInvoices($id_contract = 0)
     {
         global $database;
         global $numeric;
@@ -343,30 +120,6 @@ class ContractsInvoices
         return array();
     }
 
-    public function render($url_token, $invoice_key)
-    {
-        global $database;
-        global $properties;
-        try {
-            $url = $properties->getSiteURL() . "e/i/render/" . $url_token . "?filename=" . $invoice_key;
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_HEADER, true);    // we want headers
-            curl_setopt($ch, CURLOPT_NOBODY, true);    // we don't need body
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            $output = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            if ($httpcode === 200) {
-                $database->query("UPDATE contracts_invoices SET is_rendered = 'Y', status = 2 WHERE is_rendered = 'N' AND invoice_key = ?");
-                $database->bind(1, $invoice_key);
-                $database->execute();
-            }
-        } catch (Exception $exception) {
-            error_log($exception);
-        }
-    }
-
     public function getStatusProperties($id_contract_invoice = 0)
     {
         global $database;
@@ -387,23 +140,108 @@ class ContractsInvoices
         return $res;
     }
 
-    public function isPaid()
+    public function getPastDebitsAmount()
     {
-        global $numeric;
-        global $transactions;
+        global $database;
         try {
             $id_contract_invoice = $this->getIdContractInvoice();
-            if ($numeric->isIdentity($id_contract_invoice)) {
-                $paid_amount = $transactions->getTotalPaid($id_contract_invoice);
-                $total2pay = ($this->getSumTotalPastDebits() + $this->getAmount()) - $paid_amount;
-                if (intval($total2pay) === 0) return true;
+            $database->query("SELECT IFNULL(SUM(ci.amount - IFNULL(tr.paid_amount, 0)),0) AS debits FROM contracts_invoices ci LEFT JOIN (SELECT id_contract_invoice, IFNULL(SUM(paid_amount), 0) paid_amount FROM transactions) tr ON tr.id_contract_invoice = ci.id_contract_invoice WHERE ci.id_contract = (SELECT id_contract FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.due_date < (SELECT due_date FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.is_active = 'Y' AND (ci.amount - IFNULL(tr.paid_amount, 0)) > 0");
+            $database->bind(1, $id_contract_invoice);
+            $database->bind(2, $id_contract_invoice);
+            $result = $database->resultset();
+            if (count($result) > 0) {
+                return $result[0]['debits'];
             }
         } catch (Exception $exception) {
             error_log($exception);
         }
-        return false;
+        return 0;
     }
 
+    public function getPastInvoices()
+    {
+        global $database;
+        try {
+            $id_contract_invoice = $this->getIdContractInvoice();
+            $database->query("SELECT ci.id_contract_invoice FROM contracts_invoices ci LEFT JOIN (SELECT id_contract_invoice, IFNULL(SUM(paid_amount), 0) paid_amount FROM transactions) tr ON tr.id_contract_invoice = ci.id_contract_invoice WHERE ci.id_contract = (SELECT id_contract FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.due_date < (SELECT due_date FROM contracts_invoices WHERE id_contract_invoice = ?) AND ci.is_active = 'Y' AND (ci.amount - IFNULL(tr.paid_amount, 0)) > 0");
+            $database->bind(1, $id_contract_invoice);
+            $database->bind(2, $id_contract_invoice);
+            $result = $database->resultset();
+            if (count($result) > 0) {
+                return $result;
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return array();
+    }
+
+
+    public function getTaxAmount($custom_tax = 0.06)
+    {
+        return $this->getPastDebitsAmount() * $custom_tax;
+    }
+
+    public function getAmount2Pay()
+    {
+        global $transactions;
+        $invoice_key = $this->getInvoiceKey();
+        $paid = $transactions->getPaidAmountForInvoice($invoice_key);
+        $past = $this->getPastDebitsAmount();
+        $tax = $this->getTaxAmount();
+        $amount = $this->getAmount();
+        return (($past + $tax) + $amount) - $paid;
+    }
+
+    public function getAmountSumPast()
+    {
+        global $transactions;
+        $paid = $transactions->getPaidAmountForInvoice($this->getInvoiceKey());
+        $past = $this->getPastDebitsAmount();
+        $tax = $this->getTaxAmount();
+        $amount = $this->getAmount();
+        return (($past + $tax) + $amount);
+    }
+
+    public function getSmallInsertTime()
+    {
+        global $date;
+        $month_name = $date->getMonthNameFromDate($this->insert_time);
+        $month_name = substr($month_name, 0, 3);
+        return date("d", strtotime($this->insert_time)) . " " . $month_name . " " . date("Y", strtotime($this->insert_time));
+    }
+
+
+    public function getSmallDueDate()
+    {
+        global $date;
+        $month_name = $date->getMonthNameFromDate($this->due_date);
+        $month_name = substr($month_name, 0, 3);
+        return $month_name . " " . date("Y", strtotime($this->due_date));
+    }
+
+    public function isPaidInFutureInvoice()
+    {
+        global $database;
+        try {
+            $database->query("SELECT ci.id_contract_invoice, IFNULL(tr.tr_qt, 0) tr_qt FROM contracts_invoices ci LEFT JOIN (SELECT IFNULL(COUNT(id_contract_invoice), 0) AS tr_qt, id_contract_invoice  FROM transactions GROUP BY id_contract_invoice) tr ON tr.id_contract_invoice = ci.id_contract_invoice WHERE ci.invoice_key = ? AND ci.status = 3");
+            $database->bind(1, $this->getInvoiceKey());
+            $result = $database->resultset();
+            if (count($result) > 0) {
+                // SE HOUVE TRANSAÇÃO PARA ESSA FATURA, ENTÃO NÃO HOUVE PAGAMENTO EM OUTRA FATURA.
+                if ($result[0]['tr_qt'] > 0) return false;
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+        return true;
+    }
+
+    public function isPaid()
+    {
+        if ($this->getAmount2Pay() < 1) return true;
+        return false;
+    }
 
     /**
      * @return mixed
@@ -432,6 +270,14 @@ class ContractsInvoices
     /**
      * @return mixed
      */
+    public function getUrlToken()
+    {
+        return $this->url_token;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getInvoiceKey()
     {
         return $this->invoice_key;
@@ -453,12 +299,12 @@ class ContractsInvoices
         return $this->amount;
     }
 
-    public function getTotalToPay()
+    /**
+     * @return mixed
+     */
+    public function getStatus()
     {
-        global $transactions;
-        $paid_amount = $transactions->getTotalPaid($this->getIdContractInvoice());
-        $total2pay = ($this->getSumTotalPastDebits() + $this->getAmount()) - $paid_amount;
-        return $total2pay * 100; // convert to cents
+        return $this->status;
     }
 
     /**
@@ -469,14 +315,6 @@ class ContractsInvoices
         return $this->due_date;
     }
 
-    public function getSmallDueDate()
-    {
-        global $date;
-        $month_name = $date->getMonthNameFromDate($this->due_date);
-        $month_name = substr($month_name, 0, 3);
-        return $month_name . " " . date("Y", strtotime($this->due_date));
-    }
-
     /**
      * @return mixed
      */
@@ -484,16 +322,6 @@ class ContractsInvoices
     {
         return $this->insert_time;
     }
-
-
-    public function getSmallInsertTime()
-    {
-        global $date;
-        $month_name = $date->getMonthNameFromDate($this->insert_time);
-        $month_name = substr($month_name, 0, 3);
-        return date("d", strtotime($this->insert_time)) . " " . $month_name . " " . date("Y", strtotime($this->insert_time));
-    }
-
 
     /**
      * @return mixed
@@ -506,18 +334,66 @@ class ContractsInvoices
     /**
      * @return mixed
      */
-    public function getIdCustomer()
+    public function getIsRendered()
     {
-        return $this->id_customer;
+        return $this->is_rendered;
     }
 
     /**
      * @return mixed
      */
-    public function getStatus()
+    public function getIdCustomer()
     {
-        return $this->status;
+        return $this->id_customer;
     }
+
+
+    public function render($url_token, $invoice_key)
+    {
+        global $database;
+        global $properties;
+        try {
+            $url = $properties->getSiteURL() . "e/i/render/" . $url_token . "?filename=" . $invoice_key;
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_HEADER, true);    // we want headers
+            curl_setopt($ch, CURLOPT_NOBODY, true);    // we don't need body
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            $output = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($httpcode === 200) {
+                $database->query("UPDATE contracts_invoices SET is_rendered = 'Y', status = 2 WHERE is_rendered = 'N' AND invoice_key = ?");
+                $database->bind(1, $invoice_key);
+                $database->execute();
+            }
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
+    }
+
+    public function invoicePDFExists($invoice_key)
+    {
+        $file = DIRNAME . "../../public/documents/" . $invoice_key . ".pdf";
+        return file_exists($file);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdTransactionPaid()
+    {
+        return $this->id_transaction_paid;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPaidDate()
+    {
+        return $this->paid_date;
+    }
+
 
 
 }

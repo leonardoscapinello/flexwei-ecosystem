@@ -118,6 +118,6 @@
 
 /* Style the tab content */
 .tabcontent {
-    display: none;
+    display: block;
     padding: 10px 0;
 }

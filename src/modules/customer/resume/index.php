@@ -1,3 +1,6 @@
+<?php
+$contracts = new Contracts();
+?>
 <!-- TABS LIST -->
 <div class="tab-header">
     <div class="container">
